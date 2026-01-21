@@ -1,0 +1,10 @@
+.next
+.turbo
+.vercel
+node_modules
+dist
+coverage
+pnpm-lock.yaml
+*.log
+.env.local
+.env

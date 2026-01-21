@@ -24,17 +24,21 @@ export default function HomePage() {
 l’information sur le cycle menstruel, la lutte contre la précarité menstruelle à travers des actions de
 dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           </Text>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg">Devenir bénévole</Button>
-            <Button variant="secondary" size="lg">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button size="lg" className="w-full sm:w-auto">
+              Devenir bénévole
+            </Button>
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
               Faire un don
             </Button>
           </div>
-          <div className="grid grid-cols-3 gap-4 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
             {stats.map((stat) => (
-              <Card key={stat.label} className="p-4 text-center">
-                <p className="text-2xl font-heading font-semibold text-foreground">{stat.value}</p>
-                <p className="text-sm text-foreground/70">{stat.label}</p>
+              <Card key={stat.label} className="p-4 text-center min-h-[140px] sm:min-h-[160px]">
+                <p className="text-xl sm:text-2xl font-heading font-semibold text-foreground leading-tight">
+                  {stat.value}
+                </p>
+                <p className="text-sm sm:text-base text-foreground/70 leading-snug">{stat.label}</p>
               </Card>
             ))}
           </div>

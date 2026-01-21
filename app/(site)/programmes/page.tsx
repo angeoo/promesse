@@ -29,7 +29,6 @@ export default function ProgrammesPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge tone="secondary">Nos programmes</Badge>
         <Title level={2}>Structurer l’impact, renforcer la lisibilité</Title>
         <Text tone="muted">
           Des programmes conçus pour durer : éducation menstruelle, ambassadeurs et parrainages

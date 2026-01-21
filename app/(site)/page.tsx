@@ -42,11 +42,7 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
         <div className="relative">
           <div className="absolute inset-6 rounded-3xl bg-primary/10 blur-2xl" aria-hidden />
           <Card className="relative overflow-hidden p-0 h-full">
-            <div
-              className="h-full min-h-[340px] w-full bg-gradient-to-br from-primary via-secondary to-accent opacity-90"
-              role="img"
-              aria-label="Illustration des actions solidaires de l'association Promesse"
-            />
+            <MediaPlaceholder label="Visuel à venir" aspect="16/9" tone="photo" />
           </Card>
         </div>
       </section>
@@ -86,29 +82,27 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
         </div>
       </section>
 
-      <section className="grid gap-8 md:grid-cols-2">
-        <Card title="Restez informé·e" actions={<Badge>Newsletter</Badge>}>
-          <form className="flex flex-col gap-4">
-            <Input label="Email" type="email" placeholder="vous@example.com" helpText="Promis, zéro spam." />
-            <div className="flex gap-3">
+      <section className="flex justify-center">
+        <Card
+          title="Restez informé·e"
+          actions={<Badge>Newsletter</Badge>}
+          className="w-full max-w-xl text-center"
+        >
+          <form className="flex flex-col gap-4 items-center">
+            <Input
+              label="Email"
+              type="email"
+              placeholder="vous@example.com"
+              helpText="Promis, zéro spam."
+              className="w-full text-left"
+            />
+            <div className="flex flex-wrap justify-center gap-3 w-full">
               <Button type="submit">S’inscrire</Button>
               <Button variant="ghost" type="button">
                 Découvrir nos actions
               </Button>
             </div>
           </form>
-        </Card>
-        <Card title="Design system rapide" actions={<Badge tone="neutral">Demo</Badge>}>
-          <div className="flex flex-wrap gap-3">
-            <Button size="sm">Primaire</Button>
-            <Button variant="secondary">Secondaire</Button>
-            <Button variant="ghost">Ghost</Button>
-            <Button loading>Chargement</Button>
-            <Input label="Champ accessible" placeholder="Votre nom" />
-            <Input label="Champ en erreur" placeholder="..." error="Requis" />
-            <Badge>Badge</Badge>
-            <Badge tone="neutral">Neutre</Badge>
-          </div>
         </Card>
       </section>
     </div>

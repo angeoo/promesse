@@ -23,7 +23,6 @@ export default function PartenariatsPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge>Partenariats</Badge>
         <Title level={2}>Construire un impact social durable</Title>
         <Text tone="muted">
           Ensemble, nous pouvons amplifier les actions de Promesse : éducation menstruelle, dons,

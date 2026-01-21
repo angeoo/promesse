@@ -15,7 +15,6 @@ export default function RessourcesPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge>Ressources éducatives</Badge>
         <Title level={2}>Informer, outiller, partager</Title>
         <Text tone="muted">
           Fiches, vidéos et supports pédagogiques pour mieux comprendre le cycle menstruel et agir en

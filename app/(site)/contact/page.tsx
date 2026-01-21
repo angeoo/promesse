@@ -9,7 +9,6 @@ export default function ContactPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge>Contact / Don</Badge>
         <Title level={2}>Une question, une envie d’agir ?</Title>
         <Text tone="muted">
           Écrivez-nous, proposez un partenariat ou effectuez un don pour soutenir les programmes de

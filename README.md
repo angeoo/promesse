@@ -49,7 +49,6 @@ pnpm build      # Build production
 - `app/(site)/partenariats/page.tsx` : co-construction, mécénat, interventions.
 - `app/(site)/actualites/page.tsx` : actualités et temps forts.
 - `app/(site)/contact/page.tsx` : contact direct, formulaire, dons.
-- `app/(example)/dashboard/page.tsx` : mini tableau de bord (programmes, KPIs).
 
 ## Qualité
 

@@ -26,7 +26,6 @@ export default function ActionsPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge>Nos actions</Badge>
         <Title level={2}>Impact terrain et sensibilisation</Title>
         <Text tone="muted">
           Promesse agit concrètement : distributions, ateliers éducatifs, maraudes et événements

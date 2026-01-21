@@ -31,19 +31,19 @@
 }
 
 html {
-  background: linear-gradient(135deg, rgba(114, 0, 33, 0.12), rgba(0, 0, 101, 0.12)),
-    radial-gradient(circle at 15% 20%, rgba(0, 0, 58, 0.06), transparent 28%),
-    radial-gradient(circle at 85% 10%, rgba(114, 0, 33, 0.06), transparent 24%),
-    url("/bg-hero.png"),
+  background:
+    linear-gradient(180deg, rgba(114, 0, 33, 0.6), rgba(0, 0, 101, 0.6)),
+    url("/bg-band.png"),
     var(--color-background);
-  background-size: cover, auto, auto, cover, auto;
+  background-size: cover, cover, auto;
   background-repeat: no-repeat;
-  background-attachment: fixed, scroll, scroll, fixed, scroll;
+  background-attachment: fixed;
 }
 
 body {
   margin: 0;
   background: transparent;
+  backdrop-filter: none;
   color: var(--color-foreground);
   font-family: var(--font-body), "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;

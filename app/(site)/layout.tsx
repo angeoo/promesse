@@ -1,10 +1,12 @@
-import { SiteHeader } from "@/components/site/header";
+import { SiteHeader } from "@/components/header";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-6 py-12">{children}</main>
+      <main className="mx-auto max-w-7xl px-10 py-12 mt-6 bg-white/95 backdrop-blur-md rounded-3xl shadow-soft border border-white/70">
+        {children}
+      </main>
     </div>
   );
 }

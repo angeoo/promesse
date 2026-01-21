@@ -26,7 +26,6 @@ export default function SEngagerPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge tone="secondary">S’engager</Badge>
         <Title level={2}>Promesse, c’est toi. C’est moi. C’est nous.</Title>
         <Text tone="muted">
           Engage-toi selon ton temps, tes compétences ou tes moyens. Chaque geste compte pour celles et

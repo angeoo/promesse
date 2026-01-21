@@ -16,7 +16,6 @@ export default function AssociationPage() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
-        <Badge tone="secondary">L’association</Badge>
         <Title level={2}>Promesse : agir pour la dignité et l’éducation</Title>
         <Text tone="muted">
           Fondée en 2022 par Lauriane Babingui, Promesse s’engage auprès des publics vulnérables pour

@@ -66,10 +66,10 @@ export default function ProgrammesPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Capsule programmes">
-          <MediaPlaceholder label="Vidéo programmes" tone="video" />
+          <MediaPlaceholder src="/formations/image00001.jpeg" label="Formatrice promesse" tone="video" />
         </Card>
         <Card title="Formation terrain">
-          <MediaPlaceholder label="Photo atelier" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src="/formations/image00002.jpeg" label="Photo atelier" tone="photo" aspect="4/3" />
         </Card>
         <Card title="Suivi impact">
           <MediaPlaceholder label="Graphique bénéficiaires" tone="chart" aspect="1/1" />

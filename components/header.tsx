@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import type { Route } from "next";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "Accueil" },
@@ -19,6 +20,12 @@ const navItems = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: Route<string>) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-border">
@@ -59,7 +66,11 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 transition hover:bg-surface hover:text-foreground"
+              className={`rounded-md px-3 py-2 transition ${
+                isActive(item.href)
+                  ? "bg-primary text-white hover:bg-primary/90"
+                  : "hover:bg-surface hover:text-foreground"
+              }`}
             >
               {item.label}
             </Link>

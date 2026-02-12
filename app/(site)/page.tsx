@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { ResettableVideo } from "@/components/ui/resettable-video";
 
 const stats = [
   { label: "Protections distribuées", value: "400+" },
@@ -46,7 +47,11 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
         <div className="relative">
           <div className="absolute inset-6 rounded-3xl bg-primary/10 blur-2xl" aria-hidden />
           <Card className="relative overflow-hidden p-0 h-full">
-            <MediaPlaceholder label="Visuel à venir" aspect="16/9" tone="photo" />
+            <MediaPlaceholder
+              src="/accueil/image-1.png"
+              alt="L'equipe de l'association Promesse"
+              aspect="16/9"
+            />
           </Card>
         </div>
       </section>
@@ -80,8 +85,15 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           <Badge tone="secondary">Photos & vidéos à venir</Badge>
         </div>
         <div className="card-grid">
-          <MediaPlaceholder label="Reportage terrain (vidéo)" tone="video" />
-          <MediaPlaceholder label="Atelier santé menstruelle" tone="photo" aspect="4/3" />
+          <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+            <ResettableVideo
+              src="/accueil/f30c6134-8c9c-4403-af3b-8aa67e61c357.mp4"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+          <MediaPlaceholder
+            src="/accueil/image-2.jpeg"
+            label="Atelier santé menstruelle" tone="photo" aspect="4/3" />
           <MediaPlaceholder label="Infographie impact" tone="chart" aspect="1/1" />
         </div>
       </section>

@@ -61,7 +61,7 @@ export default function ActionsPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Galerie terrain">
-          <MediaPlaceholder label="Distribution protections" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src="/actions/image-1.jpeg" label="Distribution protections" tone="photo" aspect="4/3" />
         </Card>
         <Card title="Atelier éducatif">
           <MediaPlaceholder label="Sensibilisation cycle menstruel" tone="video" />

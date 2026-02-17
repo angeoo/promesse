@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +21,10 @@ const navItems = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const isActive = (href: Route<string>) => {
     if (href === "/") return pathname === "/";
@@ -66,6 +70,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setOpen(false)}
               className={`rounded-md px-3 py-2 transition ${
                 isActive(item.href)
                   ? "bg-primary text-white hover:bg-primary/90"

@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listMediaAssets } from "@/lib/media";
 
 const fiches = [
   "Cycle menstruel",
@@ -11,7 +12,19 @@ const fiches = [
   "Santé et prévention"
 ];
 
-export default function RessourcesPage() {
+export default async function RessourcesPage() {
+  let media = [] as Awaited<ReturnType<typeof listMediaAssets>>;
+  try {
+    media = await listMediaAssets({
+      limit: 6,
+      publishedOnly: true,
+      includeSignedUrl: true,
+      signedUrlExpiresInSeconds: 60 * 60 * 24
+    });
+  } catch {
+    media = [];
+  }
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -36,17 +49,38 @@ export default function RessourcesPage() {
         </Card>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3">
-        <Card title="Capsule vidéo">
-          <MediaPlaceholder label="Vidéo pédagogique" tone="video" />
-        </Card>
-        <Card title="Infographie santé">
-          <MediaPlaceholder label="Infographie cycle" tone="chart" aspect="1/1" />
-        </Card>
-        <Card title="Galerie ateliers">
-          <MediaPlaceholder label="Photo atelier" tone="photo" aspect="4/3" />
-        </Card>
-      </section>
+      {media.length > 0 ? (
+        <section className="grid gap-6 md:grid-cols-3">
+          {media.map((item) => (
+            <Card key={item.id} title={item.title}>
+              <div className="overflow-hidden rounded-md border border-border bg-surface">
+                {item.kind === "video" ? (
+                  <video src={item.url} controls className="h-auto w-full" />
+                ) : (
+                  <img src={item.url} alt={item.title} className="h-auto w-full object-cover" />
+                )}
+              </div>
+              {item.description ? (
+                <Text tone="muted" className="pt-3">
+                  {item.description}
+                </Text>
+              ) : null}
+            </Card>
+          ))}
+        </section>
+      ) : (
+        <section className="grid gap-6 md:grid-cols-3">
+          <Card title="Capsule vidéo">
+            <MediaPlaceholder label="Vidéo pédagogique" tone="video" />
+          </Card>
+          <Card title="Infographie santé">
+            <MediaPlaceholder label="Infographie cycle" tone="chart" aspect="1/1" />
+          </Card>
+          <Card title="Galerie ateliers">
+            <MediaPlaceholder label="Photo atelier" tone="photo" aspect="4/3" />
+          </Card>
+        </section>
+      )}
 
       <Card title="Ressources pour éducateurs" actions={<Badge tone="neutral">Interventions</Badge>}>
         <Text>

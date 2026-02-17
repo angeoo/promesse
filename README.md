@@ -12,6 +12,43 @@ pnpm test       # Vitest + RTL
 pnpm build      # Build production
 ```
 
+## Backend médias (MongoDB + S3)
+
+Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
+- MongoDB pour les métadonnées
+- S3 (ou compatible S3) pour les fichiers
+
+1. Configurer les variables d’environnement (voir `.env.example`) :
+   - `MONGODB_URI`
+   - `MONGODB_DB` (optionnel, défaut `promesse`)
+   - `S3_REGION`
+   - `S3_BUCKET`
+   - `S3_ACCESS_KEY_ID`
+   - `S3_SECRET_ACCESS_KEY`
+   - `S3_ENDPOINT` (optionnel, pour providers S3-compatibles)
+   - `ADMIN_PASSWORD` (mot de passe du formulaire admin)
+   - `ADMIN_AUTH_SECRET` (optionnel, secret de signature de session)
+   - `MEDIA_KILL_SWITCH_ENABLED` (true/false, blocage upload si quotas atteints)
+   - `MEDIA_MAX_ASSETS` (nombre max de médias)
+   - `MEDIA_MAX_TOTAL_MB` (taille totale max des médias en MB)
+2. Installer la dépendance MongoDB :
+   - `pnpm add mongodb`
+3. Installer les dépendances AWS SDK :
+   - `pnpm add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner`
+4. Lancer l’app :
+   - `pnpm dev`
+
+### Routes / pages ajoutées
+
+- `app/admin/media/page.tsx` : interface admin pour uploader et supprimer des médias.
+- `app/api/admin/auth/login/route.ts` : connexion admin (mot de passe simple).
+- `app/api/admin/auth/logout/route.ts` : déconnexion admin.
+- `app/api/admin/auth/session/route.ts` : vérification de session admin.
+- `app/api/admin/media/route.ts` : API admin (`GET`, `POST`, `DELETE`).
+  - inclut un kill switch paramétrable par quotas (`MEDIA_*`)
+- `app/api/media/[id]/route.ts` : redirection vers une URL signée S3 pour lire le média.
+- `app/(site)/ressources/page.tsx` : affiche automatiquement les médias publiés.
+
 ## Structure
 
 - `app/` pages App Router (`page.tsx`, `app/(example)/dashboard/page.tsx`)

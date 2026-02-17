@@ -29,8 +29,7 @@ const programmes = [
 
 export default async function ProgrammesPage() {
   const mediaBySlot = await listPublishedMediaBySlotIds(
-    ["programmes.capsule", "programmes.training_photo", "programmes.impact_chart"],
-    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+    ["programmes.capsule", "programmes.training_photo", "programmes.impact_chart"]
   );
 
   const capsuleMedia = mediaBySlot["programmes.capsule"];

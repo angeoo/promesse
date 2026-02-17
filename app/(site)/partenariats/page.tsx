@@ -23,8 +23,7 @@ const partenariats = [
 
 export default async function PartenariatsPage() {
   const mediaBySlot = await listPublishedMediaBySlotIds(
-    ["partenariats.case_photo", "partenariats.pitch_video", "partenariats.shared_impact_chart"],
-    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+    ["partenariats.case_photo", "partenariats.pitch_video", "partenariats.shared_impact_chart"]
   );
   const casePhotoSrc =
     mediaBySlot["partenariats.case_photo"]?.kind === "image"

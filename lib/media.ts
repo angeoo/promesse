@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { unstable_noStore as noStore } from "next/cache";
 import { getDb } from "@/lib/mongodb";
 import { getSignedReadUrl } from "@/lib/s3";
 import type { MediaAspectRatio } from "@/lib/media-slots";
@@ -113,6 +114,7 @@ export async function listPublishedMediaBySlotIds(
   slotIds: string[],
   options?: { includeSignedUrl?: boolean; signedUrlExpiresInSeconds?: number }
 ): Promise<Record<string, MediaAssetDTO>> {
+  noStore();
   if (slotIds.length === 0) return {};
   try {
     const db = await getDb();

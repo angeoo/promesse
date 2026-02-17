@@ -206,7 +206,25 @@ export const MEDIA_SLOTS: MediaSlot[] = [
     recommendedAspect: "1/1",
     acceptedKinds: ["image"],
     fallback: { kind: "image", tone: "chart", label: "Graphique actions" }
-  }
+  },
+  ...Array.from({ length: 9 }, (_, index) => {
+    const slotIndex = index + 1;
+    const padded = String(slotIndex).padStart(2, "0");
+    return {
+      id: `contact.album.${padded}`,
+      name: `Contact - Album terrain ${slotIndex}`,
+      page: "Contact",
+      description: `Image ${slotIndex} de l'album photo terrain.`,
+      recommendedAspect: "4/3" as const,
+      acceptedKinds: ["image"] as MediaKind[],
+      fallback: {
+        kind: "image" as const,
+        src: `/dons/terrain/image000${padded}.jpeg`,
+        tone: "photo" as const,
+        label: `Photo terrain ${slotIndex}`
+      }
+    };
+  })
 ];
 
 export function getMediaSlotById(slotId: string) {
@@ -216,4 +234,3 @@ export function getMediaSlotById(slotId: string) {
 export function listMediaSlots() {
   return MEDIA_SLOTS;
 }
-

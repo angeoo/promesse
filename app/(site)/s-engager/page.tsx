@@ -25,10 +25,7 @@ const options = [
 ];
 
 export default async function SEngagerPage() {
-  const mediaBySlot = await listPublishedMediaBySlotIds(["s-engager.call_video"], {
-    includeSignedUrl: true,
-    signedUrlExpiresInSeconds: 60 * 60 * 24
-  });
+  const mediaBySlot = await listPublishedMediaBySlotIds(["s-engager.call_video"]);
   const callVideoSrc =
     mediaBySlot["s-engager.call_video"]?.kind === "video"
       ? mediaBySlot["s-engager.call_video"].url

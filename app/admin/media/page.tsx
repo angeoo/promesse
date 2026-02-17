@@ -392,11 +392,18 @@ export default function AdminMediaPage() {
                 {slots.map((slot) => (
                   <div
                     key={slot.id}
-                    className="rounded-md border border-border bg-surface px-3 py-2 text-xs"
+                    className={[
+                      "rounded-md border px-3 py-2 text-xs transition",
+                      slot.available
+                        ? "border-border/70 bg-foreground/5 text-foreground/55"
+                        : "border-border bg-surface text-foreground"
+                    ].join(" ")}
                   >
-                    <p className="font-semibold text-foreground">{slot.name}</p>
-                    <p className="text-foreground/70">{slot.page}</p>
-                    <p className="text-foreground/60">
+                    <p className={slot.available ? "font-semibold text-foreground/55" : "font-semibold text-foreground"}>
+                      {slot.name}
+                    </p>
+                    <p className={slot.available ? "text-foreground/50" : "text-foreground/70"}>{slot.page}</p>
+                    <p className={slot.available ? "text-foreground/45" : "text-foreground/60"}>
                       {slot.available ? "Disponible" : "Occupe"} | Ratio {slot.recommendedAspect}
                     </p>
                   </div>

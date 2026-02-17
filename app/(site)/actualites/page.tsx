@@ -7,8 +7,7 @@ import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 export default async function ActualitesPage() {
   const mediaBySlot = await listPublishedMediaBySlotIds(
-    ["actualites.mission_photo", "actualites.replay_video", "actualites.recent_data_chart"],
-    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+    ["actualites.mission_photo", "actualites.replay_video", "actualites.recent_data_chart"]
   );
   const missionPhotoSrc =
     mediaBySlot["actualites.mission_photo"]?.kind === "image"

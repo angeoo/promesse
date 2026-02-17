@@ -15,10 +15,7 @@ const missions = [
 const valeurs = ["Amour", "Espoir", "Engagement", "Transparence", "Responsabilité", "Solidarité", "Dignité"];
 
 export default async function AssociationPage() {
-  const mediaBySlot = await listPublishedMediaBySlotIds(["association.president_video"], {
-    includeSignedUrl: true,
-    signedUrlExpiresInSeconds: 60 * 60 * 24
-  });
+  const mediaBySlot = await listPublishedMediaBySlotIds(["association.president_video"]);
   const presidentVideoSrc =
     mediaBySlot["association.president_video"]?.kind === "video"
       ? mediaBySlot["association.president_video"].url

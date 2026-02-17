@@ -18,11 +18,7 @@ export default async function RessourcesPage() {
   let mediaBySlot = {} as Awaited<ReturnType<typeof listPublishedMediaBySlotIds>>;
   try {
     mediaBySlot = await listPublishedMediaBySlotIds(
-      ["ressources.capsule_video", "ressources.health_infographic", "ressources.workshop_gallery"],
-      {
-      includeSignedUrl: true,
-      signedUrlExpiresInSeconds: 60 * 60 * 24
-      }
+      ["ressources.capsule_video", "ressources.health_infographic", "ressources.workshop_gallery"]
     );
   } catch {
     mediaBySlot = {};

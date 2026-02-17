@@ -20,8 +20,7 @@ export default async function HomePage() {
       "home.gallery_video_main",
       "home.gallery_photo_workshop",
       "home.gallery_infographic"
-    ],
-    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+    ]
   );
 
   const heroSrc =

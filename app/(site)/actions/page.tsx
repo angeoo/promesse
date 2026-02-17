@@ -26,8 +26,7 @@ const actions = [
 
 export default async function ActionsPage() {
   const mediaBySlot = await listPublishedMediaBySlotIds(
-    ["actions.gallery_field_photo", "actions.gallery_workshop_video", "actions.gallery_impact_chart"],
-    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+    ["actions.gallery_field_photo", "actions.gallery_workshop_video", "actions.gallery_impact_chart"]
   );
 
   const fieldPhotoSrc =

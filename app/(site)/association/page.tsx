@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const missions = [
@@ -71,7 +72,10 @@ export default async function AssociationPage() {
       <Card title="Mot de la Présidente (vidéo)">
         {presidentVideoSrc ? (
           <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
-            <video src={presidentVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+            <ResettableVideo
+              src={presidentVideoSrc}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           </div>
         ) : (
           <MediaPlaceholder label="Vidéo à intégrer" tone="video" />

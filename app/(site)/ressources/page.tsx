@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const fiches = [
@@ -68,7 +69,10 @@ export default async function RessourcesPage() {
         <Card title="Capsule vidéo">
           {capsuleVideoSrc ? (
             <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
-              <video src={capsuleVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+              <ResettableVideo
+                src={capsuleVideoSrc}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             </div>
           ) : (
             <MediaPlaceholder label="Vidéo pédagogique" tone="video" />

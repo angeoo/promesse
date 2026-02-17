@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const programmes = [
@@ -84,7 +85,10 @@ export default async function ProgrammesPage() {
         <Card title="Capsule programmes">
           {capsuleMedia?.kind === "video" ? (
             <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
-              <video src={capsuleMedia.url} controls className="absolute inset-0 h-full w-full object-cover" />
+              <ResettableVideo
+                src={capsuleMedia.url}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             </div>
           ) : (
             <MediaPlaceholder

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const partenariats = [
@@ -63,7 +64,10 @@ export default async function PartenariatsPage() {
         <Card title="Pitch vidéo">
           {pitchVideoSrc ? (
             <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
-              <video src={pitchVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+              <ResettableVideo
+                src={pitchVideoSrc}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             </div>
           ) : (
             <MediaPlaceholder label="Vidéo partenariat" tone="video" />

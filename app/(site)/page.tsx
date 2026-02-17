@@ -63,7 +63,10 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
             {stats.map((stat) => (
-              <Card key={stat.label} className="p-4 text-center min-h-[140px] sm:min-h-[160px]">
+              <Card
+                key={stat.label}
+                className="p-4 text-center min-h-[140px] sm:min-h-[160px] flex items-center justify-center"
+              >
                 <p className="text-xl sm:text-2xl font-heading font-semibold text-foreground leading-tight">
                   {stat.value}
                 </p>

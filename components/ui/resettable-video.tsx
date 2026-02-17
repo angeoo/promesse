@@ -5,10 +5,20 @@ import { useRef } from "react";
 type ResettableVideoProps = {
   src: string;
   className?: string;
+  poster?: string;
 };
 
-export function ResettableVideo({ src, className }: ResettableVideoProps) {
+export function ResettableVideo({ src, className, poster }: ResettableVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleLoadedMetadata = () => {
+    if (!videoRef.current || poster) return;
+    if (videoRef.current.duration <= 0) return;
+    // Force the browser to render the first decodable frame as preview.
+    if (videoRef.current.currentTime === 0) {
+      videoRef.current.currentTime = 0.001;
+    }
+  };
 
   const handleEnded = () => {
     if (!videoRef.current) return;
@@ -22,6 +32,8 @@ export function ResettableVideo({ src, className }: ResettableVideoProps) {
       controls
       playsInline
       preload="metadata"
+      poster={poster}
+      onLoadedMetadata={handleLoadedMetadata}
       onEnded={handleEnded}
       className={className}
     >

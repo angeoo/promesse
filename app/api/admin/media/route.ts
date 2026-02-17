@@ -3,6 +3,8 @@ import { getDb } from "@/lib/mongodb";
 import { getMediaAssetById, listMediaAssets, MEDIA_COLLECTION, type MediaKind } from "@/lib/media";
 import { buildStorageKey, deleteFromS3, getS3BucketName, uploadToS3 } from "@/lib/s3";
 import { isAdminAuthenticatedRequest } from "@/lib/admin-auth";
+import { consumeRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-ip";
 
 export const runtime = "nodejs";
 
@@ -32,6 +34,16 @@ function getKillSwitchConfig(): KillSwitchConfig {
     maxTotalBytes: maxTotalBytesMb ? maxTotalBytesMb * 1024 * 1024 : null
   };
 }
+
+function asPositiveInt(value: string | undefined, fallback: number) {
+  const parsed = Number.parseInt(value ?? "", 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return parsed;
+}
+
+const ADMIN_WRITE_MAX_ATTEMPTS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_MAX_ATTEMPTS, 30);
+const ADMIN_WRITE_WINDOW_MS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_WINDOW_MS, 15 * 60 * 1000);
+const ADMIN_WRITE_BLOCK_MS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_BLOCK_MS, 15 * 60 * 1000);
 
 function inferKind(contentType: string): MediaKind | null {
   if (contentType.startsWith("image/")) return "image";
@@ -64,7 +76,23 @@ export async function POST(request: NextRequest) {
     if (!isAdminAuthenticatedRequest(request)) {
       return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
-    const db = await getDb();
+    const writeLimit = consumeRateLimit({
+      key: `admin-media:post:${getClientIp(request)}`,
+      maxAttempts: ADMIN_WRITE_MAX_ATTEMPTS,
+      windowMs: ADMIN_WRITE_WINDOW_MS,
+      blockMs: ADMIN_WRITE_BLOCK_MS
+    });
+    if (!writeLimit.allowed) {
+      const retryAfter = writeLimit.retryAfterSeconds ?? 60;
+      return NextResponse.json(
+        { error: `Trop de requêtes. Réessayez dans ${retryAfter} secondes.` },
+        {
+          status: 429,
+          headers: { "Retry-After": retryAfter.toString() }
+        }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
     const rawTitle = formData.get("title");
@@ -86,6 +114,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const db = await getDb();
     const killSwitch = getKillSwitchConfig();
     if (killSwitch.enabled) {
       const usage = await db
@@ -202,6 +231,23 @@ export async function DELETE(request: NextRequest) {
     if (!isAdminAuthenticatedRequest(request)) {
       return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
+    const writeLimit = consumeRateLimit({
+      key: `admin-media:delete:${getClientIp(request)}`,
+      maxAttempts: ADMIN_WRITE_MAX_ATTEMPTS,
+      windowMs: ADMIN_WRITE_WINDOW_MS,
+      blockMs: ADMIN_WRITE_BLOCK_MS
+    });
+    if (!writeLimit.allowed) {
+      const retryAfter = writeLimit.retryAfterSeconds ?? 60;
+      return NextResponse.json(
+        { error: `Trop de requêtes. Réessayez dans ${retryAfter} secondes.` },
+        {
+          status: 429,
+          headers: { "Retry-After": retryAfter.toString() }
+        }
+      );
+    }
+
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
       return NextResponse.json({ error: "ID manquant." }, { status: 400 });

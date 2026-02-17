@@ -28,6 +28,16 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
    - `S3_ENDPOINT` (optionnel, pour providers S3-compatibles)
    - `ADMIN_PASSWORD` (mot de passe du formulaire admin)
    - `ADMIN_AUTH_SECRET` (optionnel, secret de signature de session)
+   - `ADMIN_LOGIN_MAX_ATTEMPTS` (optionnel, défaut 5)
+   - `ADMIN_LOGIN_WINDOW_MS` (optionnel, défaut 900000)
+   - `ADMIN_LOGIN_BLOCK_MS` (optionnel, défaut 900000)
+   - `ADMIN_MEDIA_WRITE_MAX_ATTEMPTS` (optionnel, défaut 30)
+   - `ADMIN_MEDIA_WRITE_WINDOW_MS` (optionnel, défaut 900000)
+   - `ADMIN_MEDIA_WRITE_BLOCK_MS` (optionnel, défaut 900000)
+   - `NEXT_PUBLIC_SITE_URL` (URL canonique pour sitemap/robots)
+   - `PUBLIC_MEDIA_MAX_ATTEMPTS` (optionnel, défaut 180)
+   - `PUBLIC_MEDIA_WINDOW_MS` (optionnel, défaut 60000)
+   - `PUBLIC_MEDIA_BLOCK_MS` (optionnel, défaut 300000)
    - `MEDIA_KILL_SWITCH_ENABLED` (true/false, blocage upload si quotas atteints)
    - `MEDIA_MAX_ASSETS` (nombre max de médias)
    - `MEDIA_MAX_TOTAL_MB` (taille totale max des médias en MB)
@@ -42,12 +52,17 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 
 - `app/admin/media/page.tsx` : interface admin pour uploader et supprimer des médias.
 - `app/api/admin/auth/login/route.ts` : connexion admin (mot de passe simple).
+  - inclut une protection anti brute-force (rate limit + blocage temporaire)
 - `app/api/admin/auth/logout/route.ts` : déconnexion admin.
 - `app/api/admin/auth/session/route.ts` : vérification de session admin.
 - `app/api/admin/media/route.ts` : API admin (`GET`, `POST`, `DELETE`).
   - inclut un kill switch paramétrable par quotas (`MEDIA_*`)
+  - inclut un rate limit écriture (`ADMIN_MEDIA_WRITE_*`)
 - `app/api/media/[id]/route.ts` : redirection vers une URL signée S3 pour lire le média.
+  - inclut un rate limit public (`PUBLIC_MEDIA_*`)
 - `app/(site)/ressources/page.tsx` : affiche automatiquement les médias publiés.
+- `app/robots.ts` + `app/sitemap.ts` : SEO technique de base.
+- `middleware.ts` : headers HTTP de sécurité + noindex sur l’espace admin.
 
 ## Structure
 

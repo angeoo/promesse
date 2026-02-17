@@ -50,10 +50,15 @@ export default async function ContactPage() {
           </div>
         </Card>
         <Card title="Formulaire rapide">
-          <form className="flex flex-col gap-3">
-            <Input label="Nom" placeholder="Votre nom" />
-            <Input label="Email" type="email" placeholder="vous@example.com" />
-            <Input label="Sujet" placeholder="Partenariat, don, bénévolat..." />
+          <form
+            className="flex flex-col gap-3"
+            action="mailto:promesse.association@gmail.com?subject=Contact%20depuis%20le%20site%20Promesse"
+            method="post"
+            encType="text/plain"
+          >
+            <Input name="Nom" label="Nom" placeholder="Votre nom" required />
+            <Input name="Email" label="Email" type="email" placeholder="vous@example.com" required />
+            <Input name="Sujet" label="Sujet" placeholder="Partenariat, don, bénévolat..." required />
             <Button type="submit">Envoyer</Button>
           </form>
         </Card>

@@ -4,11 +4,11 @@ import type { NextRequest } from "next/server";
 export const ADMIN_SESSION_COOKIE = "promesse_admin_session";
 
 function getSecret() {
-  return process.env.ADMIN_AUTH_SECRET || process.env.ADMIN_PASSWORD || "";
+  return (process.env.ADMIN_AUTH_SECRET || process.env.ADMIN_PASSWORD || "").trim();
 }
 
 function getPassword() {
-  return process.env.ADMIN_PASSWORD || "";
+  return (process.env.ADMIN_PASSWORD || "").trim();
 }
 
 function signPayload(payload: string) {
@@ -37,6 +37,9 @@ export function isAdminAuthenticatedRequest(request: NextRequest) {
 export function isValidAdminPassword(input: string) {
   const configuredPassword = getPassword();
   if (!configuredPassword) return false;
-  return safeEqual(input, configuredPassword);
+  return safeEqual(input.trim(), configuredPassword);
 }
 
+export function isAdminPasswordConfigured() {
+  return getPassword().length > 0;
+}

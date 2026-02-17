@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
@@ -129,24 +128,37 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
       </section>
 
       <section className="flex justify-center">
-        <Card
-          title="Restez informé·e"
-          actions={<Badge>Newsletter</Badge>}
-          className="w-full max-w-xl text-center"
-        >
-          <form className="flex flex-col gap-4 items-center">
-            <Input
-              label="Email"
-              type="email"
-              placeholder="vous@example.com"
-              helpText="Promis, zéro spam."
-              className="w-full text-left"
-            />
+        <Card className="w-full max-w-2xl text-center">
+          <div className="flex flex-col items-center gap-3">
+            <Badge>Newsletter</Badge>
+            <Title level={3}>Restez informé·e</Title>
+            <Text tone="muted">Laissez votre email et nous vous répondrons rapidement.</Text>
+          </div>
+          <form
+            className="mx-auto mt-2 flex w-full max-w-md flex-col items-center gap-4"
+            action="mailto:promesse.association@gmail.com?subject=Inscription%20newsletter%20Promesse"
+            method="post"
+            encType="text/plain"
+          >
+            <label className="flex w-full flex-col gap-2 text-center text-sm font-medium text-foreground">
+              <span className="font-semibold text-foreground">Email</span>
+              <input
+                name="Email"
+                type="email"
+                required
+                placeholder="vous@example.com"
+                className="rounded-md border border-border bg-white px-4 py-2 text-base text-foreground shadow-sm outline-none transition focus:border-secondary focus:shadow-focus"
+              />
+              <span className="text-xs text-accent">Promis, zéro spam.</span>
+            </label>
             <div className="flex flex-wrap justify-center gap-3 w-full">
               <Button type="submit">S’inscrire</Button>
-              <Button variant="ghost" type="button">
+              <a
+                href="/actions"
+                className="inline-flex items-center justify-center rounded-md border border-border px-4 py-2.5 text-base font-semibold text-foreground transition-colors duration-150 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+              >
                 Découvrir nos actions
-              </Button>
+              </a>
             </div>
           </form>
         </Card>

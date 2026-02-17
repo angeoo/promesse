@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_SESSION_COOKIE, getSessionValue, isValidAdminPassword } from "@/lib/admin-auth";
+import {
+  ADMIN_SESSION_COOKIE,
+  getSessionValue,
+  isAdminPasswordConfigured,
+  isValidAdminPassword
+} from "@/lib/admin-auth";
 import { checkRateLimit, registerFailure, resetRateLimitKey } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-ip";
 
@@ -15,6 +20,13 @@ const LOGIN_BLOCK_MS = asPositiveInt(process.env.ADMIN_LOGIN_BLOCK_MS, 15 * 60 *
 
 export async function POST(request: NextRequest) {
   try {
+    if (!isAdminPasswordConfigured()) {
+      return NextResponse.json(
+        { error: "Configuration manquante: ADMIN_PASSWORD n'est pas defini." },
+        { status: 500 }
+      );
+    }
+
     const rateLimitKey = `admin-login:${getClientIp(request)}`;
     const limit = checkRateLimit({
       key: rateLimitKey,

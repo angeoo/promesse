@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
-import { getMediaAssetById, listMediaAssets, MEDIA_COLLECTION, type MediaKind } from "@/lib/media";
-import { buildStorageKey, deleteFromS3, getS3BucketName, uploadToS3 } from "@/lib/s3";
+import { getMediaAssetById, listMediaAssets, MEDIA_COLLECTION, type MediaAsset, type MediaKind } from "@/lib/media";
+import { buildSlotStorageKey, deleteFromS3, getS3BucketName, uploadToS3 } from "@/lib/s3";
 import { isAdminAuthenticatedRequest } from "@/lib/admin-auth";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-ip";
+import { getMediaSlotById, listMediaSlots, type MediaAspectRatio } from "@/lib/media-slots";
 
 export const runtime = "nodejs";
 
@@ -62,7 +63,22 @@ export async function GET(request: NextRequest) {
       includeSignedUrl: true,
       signedUrlExpiresInSeconds: 60 * 60 * 6
     });
-    return NextResponse.json({ media });
+    const slots = listMediaSlots();
+    const mediaBySlot = new Map(media.map((item) => [item.slotId, item]));
+    const slotStatus = slots.map((slot) => ({
+      ...slot,
+      currentMedia: mediaBySlot.get(slot.id) ?? null,
+      available: !mediaBySlot.has(slot.id)
+    }));
+
+    return NextResponse.json({
+      media,
+      slots: slotStatus,
+      summary: {
+        totalSlots: slotStatus.length,
+        availableSlots: slotStatus.filter((slot) => slot.available).length
+      }
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Erreur serveur." },
@@ -98,6 +114,8 @@ export async function POST(request: NextRequest) {
     const rawTitle = formData.get("title");
     const rawDescription = formData.get("description");
     const rawPublished = formData.get("published");
+    const rawSlotId = formData.get("slotId");
+    const rawSlotAspect = formData.get("slotAspect");
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "Aucun fichier reçu." }, { status: 400 });
@@ -114,7 +132,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const slotId = typeof rawSlotId === "string" ? rawSlotId.trim() : "";
+    if (!slotId) {
+      return NextResponse.json({ error: "Veuillez sélectionner un emplacement média." }, { status: 400 });
+    }
+    const slot = getMediaSlotById(slotId);
+    if (!slot) {
+      return NextResponse.json({ error: "Emplacement média invalide." }, { status: 400 });
+    }
+
     const db = await getDb();
+    const existingForSlot = await db.collection<MediaAsset>(MEDIA_COLLECTION).findOne({ slotId });
     const killSwitch = getKillSwitchConfig();
     if (killSwitch.enabled) {
       const usage = await db
@@ -132,8 +160,14 @@ export async function POST(request: NextRequest) {
 
       const totalAssets = usage?.totalAssets ?? 0;
       const totalBytes = usage?.totalBytes ?? 0;
+      const existingSize = existingForSlot?.size ?? 0;
+      const projectedTotalBytes = totalBytes - existingSize + file.size;
 
-      if (killSwitch.maxAssets && totalAssets >= killSwitch.maxAssets) {
+      if (
+        killSwitch.maxAssets &&
+        totalAssets >= killSwitch.maxAssets &&
+        !existingForSlot
+      ) {
         return NextResponse.json(
           {
             error: `Kill switch actif: quota atteint (${totalAssets}/${killSwitch.maxAssets} médias).`
@@ -142,8 +176,8 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (killSwitch.maxTotalBytes && totalBytes + file.size > killSwitch.maxTotalBytes) {
-        const currentMb = Math.ceil(totalBytes / (1024 * 1024));
+      if (killSwitch.maxTotalBytes && projectedTotalBytes > killSwitch.maxTotalBytes) {
+        const currentMb = Math.ceil(projectedTotalBytes / (1024 * 1024));
         const maxMb = Math.floor(killSwitch.maxTotalBytes / (1024 * 1024));
         return NextResponse.json(
           {
@@ -163,18 +197,30 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+    if (!slot.acceptedKinds.includes(kind)) {
+      return NextResponse.json(
+        {
+          error: `Ce slot accepte: ${slot.acceptedKinds.join(" / ")}. Fichier actuel: ${kind}.`
+        },
+        { status: 400 }
+      );
+    }
 
     const title =
-      typeof rawTitle === "string" && rawTitle.trim().length > 0 ? rawTitle.trim() : file.name;
+      typeof rawTitle === "string" && rawTitle.trim().length > 0 ? rawTitle.trim() : slot.name;
     const description =
       typeof rawDescription === "string" && rawDescription.trim().length > 0
         ? rawDescription.trim()
         : undefined;
     const published = rawPublished === "true";
+    const slotAspect: MediaAspectRatio =
+      rawSlotAspect === "16/9" || rawSlotAspect === "4/3" || rawSlotAspect === "1/1"
+        ? rawSlotAspect
+        : slot.recommendedAspect;
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const storageKey = buildStorageKey(file.name);
+    const storageKey = buildSlotStorageKey(slotId);
     const storageBucket = getS3BucketName();
 
     await uploadToS3({
@@ -184,7 +230,10 @@ export async function POST(request: NextRequest) {
     });
 
     const now = new Date();
-    const doc = {
+    const baseDoc = {
+      slotId,
+      slotName: slot.name,
+      slotAspect,
       title,
       description,
       kind,
@@ -193,26 +242,47 @@ export async function POST(request: NextRequest) {
       filename: file.name,
       contentType,
       size: file.size,
-      published,
-      createdAt: now,
-      updatedAt: now
+      published
     };
 
-    const insertResult = await db.collection(MEDIA_COLLECTION).insertOne(doc);
-    const id = insertResult.insertedId.toHexString();
+    const upsertResult = await db.collection<MediaAsset>(MEDIA_COLLECTION).findOneAndUpdate(
+      { slotId },
+      {
+        $set: {
+          ...baseDoc,
+          updatedAt: now
+        },
+        $setOnInsert: {
+          createdAt: now
+        }
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+
+    const saved = upsertResult;
+    if (!saved?._id) {
+      return NextResponse.json({ error: "Impossible de sauvegarder le média." }, { status: 500 });
+    }
+    if (existingForSlot && existingForSlot.storageKey !== storageKey) {
+      await deleteFromS3(existingForSlot.storageKey);
+    }
+    const id = saved._id.toHexString();
 
     return NextResponse.json(
       {
         media: {
           id,
-          title: doc.title,
-          description: doc.description,
-          kind: doc.kind,
-          filename: doc.filename,
-          contentType: doc.contentType,
-          size: doc.size,
-          published: doc.published,
-          createdAt: doc.createdAt.toISOString(),
+          slotId: saved.slotId,
+          slotName: saved.slotName,
+          slotAspect: saved.slotAspect,
+          title: saved.title,
+          description: saved.description,
+          kind: saved.kind,
+          filename: saved.filename,
+          contentType: saved.contentType,
+          size: saved.size,
+          published: saved.published,
+          createdAt: saved.createdAt.toISOString(),
           url: `/api/media/${id}`
         }
       },

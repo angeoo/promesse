@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
-import { listMediaAssets } from "@/lib/media";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const fiches = [
   "Cycle menstruel",
@@ -14,17 +14,31 @@ const fiches = [
 ];
 
 export default async function RessourcesPage() {
-  let media = [] as Awaited<ReturnType<typeof listMediaAssets>>;
+  let mediaBySlot = {} as Awaited<ReturnType<typeof listPublishedMediaBySlotIds>>;
   try {
-    media = await listMediaAssets({
-      limit: 6,
-      publishedOnly: true,
+    mediaBySlot = await listPublishedMediaBySlotIds(
+      ["ressources.capsule_video", "ressources.health_infographic", "ressources.workshop_gallery"],
+      {
       includeSignedUrl: true,
       signedUrlExpiresInSeconds: 60 * 60 * 24
-    });
+      }
+    );
   } catch {
-    media = [];
+    mediaBySlot = {};
   }
+
+  const capsuleVideoSrc =
+    mediaBySlot["ressources.capsule_video"]?.kind === "video"
+      ? mediaBySlot["ressources.capsule_video"].url
+      : undefined;
+  const infographicSrc =
+    mediaBySlot["ressources.health_infographic"]?.kind === "image"
+      ? mediaBySlot["ressources.health_infographic"].url
+      : undefined;
+  const workshopSrc =
+    mediaBySlot["ressources.workshop_gallery"]?.kind === "image"
+      ? mediaBySlot["ressources.workshop_gallery"].url
+      : undefined;
 
   return (
     <div className="flex flex-col gap-10">
@@ -50,38 +64,23 @@ export default async function RessourcesPage() {
         </Card>
       </section>
 
-      {media.length > 0 ? (
-        <section className="grid gap-6 md:grid-cols-3">
-          {media.map((item) => (
-            <Card key={item.id} title={item.title}>
-              <div className="overflow-hidden rounded-md border border-border bg-surface">
-                {item.kind === "video" ? (
-                  <video src={item.url} controls className="h-auto w-full" />
-                ) : (
-                  <img src={item.url} alt={item.title} className="h-auto w-full object-cover" />
-                )}
-              </div>
-              {item.description ? (
-                <Text tone="muted" className="pt-3">
-                  {item.description}
-                </Text>
-              ) : null}
-            </Card>
-          ))}
-        </section>
-      ) : (
-        <section className="grid gap-6 md:grid-cols-3">
-          <Card title="Capsule vidéo">
+      <section className="grid gap-6 md:grid-cols-3">
+        <Card title="Capsule vidéo">
+          {capsuleVideoSrc ? (
+            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+              <video src={capsuleVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+          ) : (
             <MediaPlaceholder label="Vidéo pédagogique" tone="video" />
-          </Card>
-          <Card title="Infographie santé">
-            <MediaPlaceholder label="Infographie cycle" tone="chart" aspect="1/1" />
-          </Card>
-          <Card title="Galerie ateliers">
-            <MediaPlaceholder label="Photo atelier" tone="photo" aspect="4/3" />
-          </Card>
-        </section>
-      )}
+          )}
+        </Card>
+        <Card title="Infographie santé">
+          <MediaPlaceholder src={infographicSrc} alt="Infographie cycle" label="Infographie cycle" tone="chart" aspect="1/1" />
+        </Card>
+        <Card title="Galerie ateliers">
+          <MediaPlaceholder src={workshopSrc} alt="Photo atelier" label="Photo atelier" tone="photo" aspect="4/3" />
+        </Card>
+      </section>
 
       <Card title="Ressources pour éducateurs" actions={<Badge tone="neutral">Interventions</Badge>}>
         <Text>

@@ -24,6 +24,9 @@ describe("Admin media flow (E2E simulated)", () => {
     let counter = 2;
     let items: Array<{
       id: string;
+      slotId: string;
+      slotName: string;
+      slotAspect: "16/9" | "4/3" | "1/1";
       title: string;
       description?: string;
       kind: "image" | "video";
@@ -36,6 +39,9 @@ describe("Admin media flow (E2E simulated)", () => {
     }> = [
       {
         id: "seed-1",
+        slotId: "actions.gallery_field_photo",
+        slotName: "Actions - Galerie terrain",
+        slotAspect: "4/3",
         title: "Media existant",
         description: "Deja en base",
         kind: "image",
@@ -75,7 +81,17 @@ describe("Admin media flow (E2E simulated)", () => {
 
         if (url.pathname === "/api/admin/media" && method === "GET") {
           if (!authenticated) return jsonResponse({ status: 401, body: { error: "Non autorisé." } });
-          return jsonResponse({ status: 200, body: { media: items } });
+          return jsonResponse({
+            status: 200,
+            body: {
+              media: items,
+              slots: slots.map((slot) => ({
+                ...slot,
+                currentMedia: items.find((item) => item.slotId === slot.id) ?? null,
+                available: !items.some((item) => item.slotId === slot.id)
+              }))
+            }
+          });
         }
 
         if (url.pathname === "/api/admin/media" && method === "POST") {
@@ -85,6 +101,9 @@ describe("Admin media flow (E2E simulated)", () => {
           const id = String(counter++);
           const media = {
             id,
+            slotId: "actions.gallery_workshop_video",
+            slotName: "Actions - Atelier éducatif vidéo",
+            slotAspect: "16/9" as const,
             title,
             description: body.get("description") ? String(body.get("description")) : undefined,
             kind: "image" as const,
@@ -146,3 +165,21 @@ describe("Admin media flow (E2E simulated)", () => {
     });
   });
 });
+    const slots = [
+      {
+        id: "actions.gallery_field_photo",
+        name: "Actions - Galerie terrain",
+        page: "Actions",
+        description: "Carte Galerie terrain.",
+        recommendedAspect: "4/3" as const,
+        acceptedKinds: ["image"] as const
+      },
+      {
+        id: "actions.gallery_workshop_video",
+        name: "Actions - Atelier éducatif vidéo",
+        page: "Actions",
+        description: "Carte Atelier éducatif.",
+        recommendedAspect: "16/9" as const,
+        acceptedKinds: ["video"] as const
+      }
+    ];

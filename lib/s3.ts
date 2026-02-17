@@ -48,6 +48,11 @@ export function buildStorageKey(filename: string) {
   return `media/${Date.now()}-${safeName}`;
 }
 
+export function buildSlotStorageKey(slotId: string) {
+  const safeSlotId = slotId.replace(/[^a-zA-Z0-9._-]/g, "_");
+  return `media/slots/${safeSlotId}`;
+}
+
 export async function uploadToS3(params: {
   key: string;
   body: Buffer;
@@ -89,4 +94,3 @@ export async function getSignedReadUrl(key: string, expiresInSeconds = 3600) {
 
   return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
 }
-

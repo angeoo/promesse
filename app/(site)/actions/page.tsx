@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const actions = [
   {
@@ -22,7 +23,25 @@ const actions = [
   }
 ];
 
-export default function ActionsPage() {
+export default async function ActionsPage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(
+    ["actions.gallery_field_photo", "actions.gallery_workshop_video", "actions.gallery_impact_chart"],
+    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+  );
+
+  const fieldPhotoSrc =
+    mediaBySlot["actions.gallery_field_photo"]?.kind === "image"
+      ? mediaBySlot["actions.gallery_field_photo"].url
+      : "/actions/image-1.jpeg";
+  const workshopVideoSrc =
+    mediaBySlot["actions.gallery_workshop_video"]?.kind === "video"
+      ? mediaBySlot["actions.gallery_workshop_video"].url
+      : undefined;
+  const impactChartSrc =
+    mediaBySlot["actions.gallery_impact_chart"]?.kind === "image"
+      ? mediaBySlot["actions.gallery_impact_chart"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -61,13 +80,19 @@ export default function ActionsPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Galerie terrain">
-          <MediaPlaceholder src="/actions/image-1.jpeg" label="Distribution protections" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src={fieldPhotoSrc} label="Distribution protections" tone="photo" aspect="4/3" />
         </Card>
         <Card title="Atelier éducatif">
-          <MediaPlaceholder label="Sensibilisation cycle menstruel" tone="video" />
+          {workshopVideoSrc ? (
+            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+              <video src={workshopVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+          ) : (
+            <MediaPlaceholder label="Sensibilisation cycle menstruel" tone="video" />
+          )}
         </Card>
         <Card title="Impact visuel">
-          <MediaPlaceholder label="Graphique interventions" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={impactChartSrc} label="Graphique interventions" tone="chart" aspect="1/1" />
         </Card>
       </section>
     </div>

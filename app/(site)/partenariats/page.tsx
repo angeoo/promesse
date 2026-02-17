@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const partenariats = [
   {
@@ -19,7 +20,24 @@ const partenariats = [
   }
 ];
 
-export default function PartenariatsPage() {
+export default async function PartenariatsPage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(
+    ["partenariats.case_photo", "partenariats.pitch_video", "partenariats.shared_impact_chart"],
+    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+  );
+  const casePhotoSrc =
+    mediaBySlot["partenariats.case_photo"]?.kind === "image"
+      ? mediaBySlot["partenariats.case_photo"].url
+      : undefined;
+  const pitchVideoSrc =
+    mediaBySlot["partenariats.pitch_video"]?.kind === "video"
+      ? mediaBySlot["partenariats.pitch_video"].url
+      : undefined;
+  const impactChartSrc =
+    mediaBySlot["partenariats.shared_impact_chart"]?.kind === "image"
+      ? mediaBySlot["partenariats.shared_impact_chart"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -40,13 +58,19 @@ export default function PartenariatsPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Cas partenaire">
-          <MediaPlaceholder label="Photo projet commun" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src={casePhotoSrc} label="Photo projet commun" tone="photo" aspect="4/3" />
         </Card>
         <Card title="Pitch vidéo">
-          <MediaPlaceholder label="Vidéo partenariat" tone="video" />
+          {pitchVideoSrc ? (
+            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+              <video src={pitchVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+          ) : (
+            <MediaPlaceholder label="Vidéo partenariat" tone="video" />
+          )}
         </Card>
         <Card title="Impact partagé">
-          <MediaPlaceholder label="Graphique impact" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={impactChartSrc} label="Graphique impact" tone="chart" aspect="1/1" />
         </Card>
       </section>
 

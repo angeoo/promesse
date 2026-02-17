@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const missions = [
   "Lutter contre la précarité menstruelle",
@@ -12,7 +13,16 @@ const missions = [
 
 const valeurs = ["Amour", "Espoir", "Engagement", "Transparence", "Responsabilité", "Solidarité", "Dignité"];
 
-export default function AssociationPage() {
+export default async function AssociationPage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(["association.president_video"], {
+    includeSignedUrl: true,
+    signedUrlExpiresInSeconds: 60 * 60 * 24
+  });
+  const presidentVideoSrc =
+    mediaBySlot["association.president_video"]?.kind === "video"
+      ? mediaBySlot["association.president_video"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -59,7 +69,13 @@ export default function AssociationPage() {
       </section>
 
       <Card title="Mot de la Présidente (vidéo)">
-        <MediaPlaceholder label="Vidéo à intégrer" tone="video" />
+        {presidentVideoSrc ? (
+          <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+            <video src={presidentVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+          </div>
+        ) : (
+          <MediaPlaceholder label="Vidéo à intégrer" tone="video" />
+        )}
       </Card>
     </div>
   );

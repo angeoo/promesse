@@ -38,6 +38,9 @@ describe("API rate limit (E2E simulated)", () => {
 
     vi.mocked(getMediaAssetById).mockResolvedValue({
       _id: { toHexString: () => "abc" } as never,
+      slotId: "home.hero_visual",
+      slotName: "Accueil - Hero visuel",
+      slotAspect: "16/9",
       title: "media",
       kind: "image",
       storageKey: "media/key",

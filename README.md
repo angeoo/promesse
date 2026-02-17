@@ -17,6 +17,7 @@ pnpm build      # Build production
 Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 - MongoDB pour les métadonnées
 - S3 (ou compatible S3) pour les fichiers
+- Mapping des emplacements front via des slots (`lib/media-slots.ts`)
 
 1. Configurer les variables d’environnement (voir `.env.example`) :
    - `MONGODB_URI`
@@ -51,6 +52,7 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 ### Routes / pages ajoutées
 
 - `app/admin/media/page.tsx` : interface admin pour uploader et supprimer des médias.
+  - sélection d’un slot front (emplacement exact), ratio recommandé et visualisation des places disponibles
 - `app/api/admin/auth/login/route.ts` : connexion admin (mot de passe simple).
   - inclut une protection anti brute-force (rate limit + blocage temporaire)
 - `app/api/admin/auth/logout/route.ts` : déconnexion admin.
@@ -58,9 +60,11 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 - `app/api/admin/media/route.ts` : API admin (`GET`, `POST`, `DELETE`).
   - inclut un kill switch paramétrable par quotas (`MEDIA_*`)
   - inclut un rate limit écriture (`ADMIN_MEDIA_WRITE_*`)
+  - upload en overwrite par slot (remplacement du média existant pour l’emplacement choisi)
 - `app/api/media/[id]/route.ts` : redirection vers une URL signée S3 pour lire le média.
   - inclut un rate limit public (`PUBLIC_MEDIA_*`)
 - `app/(site)/ressources/page.tsx` : affiche automatiquement les médias publiés.
+- `lib/media-slots.ts` : mapping centralisé de tous les `MediaPlaceholder` et `ResettableVideo`.
 - `app/robots.ts` + `app/sitemap.ts` : SEO technique de base.
 - `middleware.ts` : headers HTTP de sécurité + noindex sur l’espace admin.
 

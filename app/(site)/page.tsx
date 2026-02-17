@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const stats = [
   { label: "Protections distribuées", value: "400+" },
@@ -12,7 +13,34 @@ const stats = [
   { label: "Zones d’action", value: "France & Afrique" }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(
+    [
+      "home.hero_visual",
+      "home.gallery_video_main",
+      "home.gallery_photo_workshop",
+      "home.gallery_infographic"
+    ],
+    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+  );
+
+  const heroSrc =
+    mediaBySlot["home.hero_visual"]?.kind === "image"
+      ? mediaBySlot["home.hero_visual"].url
+      : "/accueil/image-1.png";
+  const mainVideoSrc =
+    mediaBySlot["home.gallery_video_main"]?.kind === "video"
+      ? mediaBySlot["home.gallery_video_main"].url
+      : "/accueil/f30c6134-8c9c-4403-af3b-8aa67e61c357.mp4";
+  const workshopPhotoSrc =
+    mediaBySlot["home.gallery_photo_workshop"]?.kind === "image"
+      ? mediaBySlot["home.gallery_photo_workshop"].url
+      : "/accueil/image-2.jpeg";
+  const infographicSrc =
+    mediaBySlot["home.gallery_infographic"]?.kind === "image"
+      ? mediaBySlot["home.gallery_infographic"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-14">
       <section className="grid gap-10 md:grid-cols-2 items-center">
@@ -48,7 +76,7 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           <div className="absolute inset-6 rounded-3xl bg-primary/10 blur-2xl" aria-hidden />
           <Card className="relative overflow-hidden p-0 h-full">
             <MediaPlaceholder
-              src="/accueil/image-1.png"
+              src={heroSrc}
               alt="L'equipe de l'association Promesse"
               aspect="16/9"
             />
@@ -87,14 +115,14 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
         <div className="card-grid">
           <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
             <ResettableVideo
-              src="/accueil/f30c6134-8c9c-4403-af3b-8aa67e61c357.mp4"
+              src={mainVideoSrc}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
           <MediaPlaceholder
-            src="/accueil/image-2.jpeg"
+            src={workshopPhotoSrc}
             label="Atelier santé menstruelle" tone="photo" aspect="4/3" />
-          <MediaPlaceholder label="Infographie impact" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={infographicSrc} label="Infographie impact" tone="chart" aspect="1/1" />
         </div>
       </section>
 

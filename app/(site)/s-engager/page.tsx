@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const options = [
   {
@@ -22,7 +23,16 @@ const options = [
   }
 ];
 
-export default function SEngagerPage() {
+export default async function SEngagerPage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(["s-engager.call_video"], {
+    includeSignedUrl: true,
+    signedUrlExpiresInSeconds: 60 * 60 * 24
+  });
+  const callVideoSrc =
+    mediaBySlot["s-engager.call_video"]?.kind === "video"
+      ? mediaBySlot["s-engager.call_video"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -50,7 +60,13 @@ export default function SEngagerPage() {
           envie de s’impliquer et de passer à l’action.
         </Text>
         <div className="pt-3">
-          <MediaPlaceholder label="Vidéo engagement" tone="video" />
+          {callVideoSrc ? (
+            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+              <video src={callVideoSrc} controls className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+          ) : (
+            <MediaPlaceholder label="Vidéo engagement" tone="video" />
+          )}
         </div>
       </Card>
     </div>

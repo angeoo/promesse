@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const programmes = [
   {
@@ -25,7 +26,22 @@ const programmes = [
   }
 ];
 
-export default function ProgrammesPage() {
+export default async function ProgrammesPage() {
+  const mediaBySlot = await listPublishedMediaBySlotIds(
+    ["programmes.capsule", "programmes.training_photo", "programmes.impact_chart"],
+    { includeSignedUrl: true, signedUrlExpiresInSeconds: 60 * 60 * 24 }
+  );
+
+  const capsuleMedia = mediaBySlot["programmes.capsule"];
+  const trainingPhotoSrc =
+    mediaBySlot["programmes.training_photo"]?.kind === "image"
+      ? mediaBySlot["programmes.training_photo"].url
+      : "/formations/image00002.jpeg";
+  const impactChartSrc =
+    mediaBySlot["programmes.impact_chart"]?.kind === "image"
+      ? mediaBySlot["programmes.impact_chart"].url
+      : undefined;
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -66,13 +82,23 @@ export default function ProgrammesPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Capsule programmes">
-          <MediaPlaceholder src="/formations/image00001.jpeg" label="Formatrice promesse" tone="video" />
+          {capsuleMedia?.kind === "video" ? (
+            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+              <video src={capsuleMedia.url} controls className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+          ) : (
+            <MediaPlaceholder
+              src={capsuleMedia?.kind === "image" ? capsuleMedia.url : "/formations/image00001.jpeg"}
+              label="Formatrice promesse"
+              tone="video"
+            />
+          )}
         </Card>
         <Card title="Formation terrain">
-          <MediaPlaceholder src="/formations/image00002.jpeg" label="Photo atelier" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src={trainingPhotoSrc} label="Photo atelier" tone="photo" aspect="4/3" />
         </Card>
         <Card title="Suivi impact">
-          <MediaPlaceholder label="Graphique bénéficiaires" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={impactChartSrc} label="Graphique bénéficiaires" tone="chart" aspect="1/1" />
         </Card>
       </section>
 

@@ -1,11 +1,15 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import { getSignedReadUrl } from "@/lib/s3";
+import type { MediaAspectRatio } from "@/lib/media-slots";
 
 export type MediaKind = "image" | "video";
 
 export type MediaAsset = {
   _id: ObjectId;
+  slotId: string;
+  slotName: string;
+  slotAspect: MediaAspectRatio;
   title: string;
   description?: string;
   kind: MediaKind;
@@ -21,6 +25,9 @@ export type MediaAsset = {
 
 export type MediaAssetDTO = {
   id: string;
+  slotId: string;
+  slotName: string;
+  slotAspect: MediaAspectRatio;
   title: string;
   description?: string;
   kind: MediaKind;
@@ -39,6 +46,7 @@ async function toMediaAssetDTO(
   options?: { includeSignedUrl?: boolean; signedUrlExpiresInSeconds?: number }
 ): Promise<MediaAssetDTO> {
   const id = asset._id.toHexString();
+  const slotId = asset.slotId || `legacy-${id}`;
   let url = `/api/media/${id}`;
 
   if (options?.includeSignedUrl) {
@@ -51,6 +59,9 @@ async function toMediaAssetDTO(
 
   return {
     id,
+    slotId,
+    slotName: asset.slotName || slotId,
+    slotAspect: asset.slotAspect || "16/9",
     title: asset.title,
     description: asset.description,
     kind: asset.kind,
@@ -96,4 +107,37 @@ export async function getMediaAssetById(id: string): Promise<MediaAsset | null> 
   if (!ObjectId.isValid(id)) return null;
   const db = await getDb();
   return db.collection<MediaAsset>(MEDIA_COLLECTION).findOne({ _id: new ObjectId(id) });
+}
+
+export async function listPublishedMediaBySlotIds(
+  slotIds: string[],
+  options?: { includeSignedUrl?: boolean; signedUrlExpiresInSeconds?: number }
+): Promise<Record<string, MediaAssetDTO>> {
+  if (slotIds.length === 0) return {};
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<MediaAsset>(MEDIA_COLLECTION)
+      .find({
+        published: true,
+        slotId: { $in: slotIds }
+      })
+      .toArray();
+
+    const dtoList = await Promise.all(
+      docs.map((doc) =>
+        toMediaAssetDTO(doc, {
+          includeSignedUrl: options?.includeSignedUrl,
+          signedUrlExpiresInSeconds: options?.signedUrlExpiresInSeconds
+        })
+      )
+    );
+
+    return dtoList.reduce<Record<string, MediaAssetDTO>>((acc, item) => {
+      acc[item.slotId] = item;
+      return acc;
+    }, {});
+  } catch {
+    return {};
+  }
 }

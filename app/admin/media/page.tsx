@@ -109,6 +109,18 @@ export default function AdminMediaPage() {
     });
   }, [loadMedia]);
 
+  useEffect(() => {
+    if (slots.length === 0) {
+      if (selectedSlotId !== "") setSelectedSlotId("");
+      return;
+    }
+    const slotStillExists = slots.some((slot) => slot.id === selectedSlotId);
+    if (!slotStillExists) {
+      setSelectedSlotId(slots[0].id);
+      setSelectedAspect(slots[0].recommendedAspect);
+    }
+  }, [slots, selectedSlotId]);
+
   const onLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAuthState((prev) => ({ ...prev, loading: true, error: null }));
@@ -307,15 +319,24 @@ export default function AdminMediaPage() {
                       setSelectedAspect(slot.recommendedAspect);
                     }
                   }}
-                  required
+                  required={slots.length > 0}
+                  disabled={slots.length === 0}
                   className="rounded-md border border-border bg-white px-3 py-2 text-sm"
                 >
+                  <option value="" disabled>
+                    Sélectionnez un emplacement...
+                  </option>
                   {slots.map((slot) => (
                     <option key={slot.id} value={slot.id}>
-                      {slot.page} - {slot.name}
+                      {slot.name}
                     </option>
                   ))}
                 </select>
+                {slots.length === 0 ? (
+                  <p className="text-xs text-primary">
+                    Aucun emplacement chargé. Rafraîchissez la page ou reconnectez-vous.
+                  </p>
+                ) : null}
                 {selectedSlot ? (
                   <p className="text-xs text-foreground/60">
                     {selectedSlot.description} | Ratio recommande: {selectedSlot.recommendedAspect} | Types:
@@ -373,7 +394,7 @@ export default function AdminMediaPage() {
                 Publier immédiatement
               </label>
               <div className="flex items-center gap-3">
-                <Button type="submit" disabled={uploadState.loading}>
+                <Button type="submit" disabled={uploadState.loading || slots.length === 0 || !selectedSlotId}>
                   {uploadState.loading ? "Envoi..." : "Uploader"}
                 </Button>
               </div>

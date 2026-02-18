@@ -78,6 +78,7 @@ export default function AdminMediaPage() {
       const data = (await response.json()) as {
         media?: MediaAssetDTO[];
         slots?: SlotStatus[];
+        warning?: string;
         error?: string;
       };
       if (response.status === 401) {
@@ -89,6 +90,12 @@ export default function AdminMediaPage() {
       if (!response.ok) throw new Error(data.error ?? "Impossible de charger les médias.");
       setItems(data.media ?? []);
       setSlots(data.slots ?? []);
+      if (data.warning) {
+        setUploadState((prev) => ({
+          ...prev,
+          error: data.warning ?? "Avertissement de chargement."
+        }));
+      }
       setSelectedSlotId((prev) => prev || data.slots?.[0]?.id || "");
       setSelectedAspect((prev) => prev || data.slots?.[0]?.recommendedAspect || "16/9");
     } catch (error) {
@@ -411,14 +418,21 @@ export default function AdminMediaPage() {
               </div>
               <div className="grid gap-2 md:grid-cols-2">
                 {slots.map((slot) => (
-                  <div
+                  <button
+                    type="button"
                     key={slot.id}
+                    onClick={() => {
+                      setSelectedSlotId(slot.id);
+                      setSelectedAspect(slot.recommendedAspect);
+                    }}
                     className={[
-                      "rounded-md border px-3 py-2 text-xs transition",
+                      "rounded-md border px-3 py-2 text-xs text-left transition",
+                      selectedSlotId === slot.id ? "ring-2 ring-secondary/60" : "",
                       slot.available
                         ? "border-border/70 bg-foreground/5 text-foreground/55"
                         : "border-border bg-surface text-foreground"
                     ].join(" ")}
+                    aria-pressed={selectedSlotId === slot.id}
                   >
                     <p className={slot.available ? "font-semibold text-foreground/55" : "font-semibold text-foreground"}>
                       {slot.name}
@@ -427,7 +441,7 @@ export default function AdminMediaPage() {
                     <p className={slot.available ? "text-foreground/45" : "text-foreground/60"}>
                       {slot.available ? "Disponible" : "Occupe"} | Ratio {slot.recommendedAspect}
                     </p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </Card>

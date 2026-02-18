@@ -53,17 +53,19 @@ function inferKind(contentType: string): MediaKind | null {
 }
 
 export async function GET(request: NextRequest) {
+  if (!isAdminAuthenticatedRequest(request)) {
+    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
+  }
+
+  const slots = listMediaSlots();
+
   try {
-    if (!isAdminAuthenticatedRequest(request)) {
-      return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-    }
     const media = await listMediaAssets({
       limit: 100,
       publishedOnly: false,
       includeSignedUrl: true,
       signedUrlExpiresInSeconds: 60 * 60 * 6
     });
-    const slots = listMediaSlots();
     const mediaBySlot = new Map(media.map((item) => [item.slotId, item]));
     const slotStatus = slots.map((slot) => ({
       ...slot,
@@ -80,10 +82,17 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Erreur serveur." },
-      { status: 500 }
-    );
+    const fallbackSlots = slots.map((slot) => ({
+      ...slot,
+      currentMedia: null,
+      available: true
+    }));
+    return NextResponse.json({
+      media: [],
+      slots: fallbackSlots,
+      warning: "Médias indisponibles temporairement. Vérifiez la connexion MongoDB.",
+      details: error instanceof Error ? error.message : "Erreur serveur."
+    });
   }
 }
 

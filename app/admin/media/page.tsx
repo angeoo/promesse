@@ -42,7 +42,7 @@ export default function AdminMediaPage() {
   const [slots, setSlots] = useState<SlotStatus[]>([]);
   const [loadingList, setLoadingList] = useState(false);
   const [selectedSlotId, setSelectedSlotId] = useState("");
-  const [selectedAspect, setSelectedAspect] = useState<MediaAspectRatio>("16/9");
+  const [selectedAspect, setSelectedAspect] = useState<MediaAspectRatio>("1/1");
   const [uploadState, setUploadState] = useState<UploadState>({
     loading: false,
     error: null,
@@ -97,7 +97,7 @@ export default function AdminMediaPage() {
         }));
       }
       setSelectedSlotId((prev) => prev || data.slots?.[0]?.id || "");
-      setSelectedAspect((prev) => prev || data.slots?.[0]?.recommendedAspect || "16/9");
+      setSelectedAspect((prev) => prev || "1/1");
     } catch (error) {
       setUploadState((prev) => ({
         ...prev,
@@ -124,7 +124,7 @@ export default function AdminMediaPage() {
     const slotStillExists = slots.some((slot) => slot.id === selectedSlotId);
     if (!slotStillExists) {
       setSelectedSlotId(slots[0].id);
-      setSelectedAspect(slots[0].recommendedAspect);
+      setSelectedAspect("1/1");
     }
   }, [slots, selectedSlotId]);
 
@@ -321,10 +321,6 @@ export default function AdminMediaPage() {
                   onChange={(event) => {
                     const slotId = event.target.value;
                     setSelectedSlotId(slotId);
-                    const slot = slots.find((item) => item.id === slotId);
-                    if (slot) {
-                      setSelectedAspect(slot.recommendedAspect);
-                    }
                   }}
                   required={slots.length > 0}
                   disabled={slots.length === 0}

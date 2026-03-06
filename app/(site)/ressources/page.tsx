@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
-import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
@@ -28,14 +28,17 @@ export default async function RessourcesPage() {
     mediaBySlot["ressources.capsule_video"]?.kind === "video"
       ? mediaBySlot["ressources.capsule_video"].url
       : undefined;
+  const capsuleVideoAspect = mediaBySlot["ressources.capsule_video"]?.slotAspect ?? "1/1";
   const infographicSrc =
     mediaBySlot["ressources.health_infographic"]?.kind === "image"
       ? mediaBySlot["ressources.health_infographic"].url
       : undefined;
+  const infographicAspect = mediaBySlot["ressources.health_infographic"]?.slotAspect ?? "1/1";
   const workshopSrc =
     mediaBySlot["ressources.workshop_gallery"]?.kind === "image"
       ? mediaBySlot["ressources.workshop_gallery"].url
       : undefined;
+  const workshopAspect = mediaBySlot["ressources.workshop_gallery"]?.slotAspect ?? "1/1";
 
   return (
     <div className="flex flex-col gap-10">
@@ -64,21 +67,23 @@ export default async function RessourcesPage() {
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Capsule vidéo">
           {capsuleVideoSrc ? (
-            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+            <div
+              className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(capsuleVideoAspect)}`}
+            >
               <ResettableVideo
                 src={capsuleVideoSrc}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>
           ) : (
-            <MediaPlaceholder label="Vidéo pédagogique" tone="video" />
+            <MediaPlaceholder label="Vidéo pédagogique" tone="video" aspect={capsuleVideoAspect} />
           )}
         </Card>
         <Card title="Infographie santé">
-          <MediaPlaceholder src={infographicSrc} alt="Infographie cycle" label="Infographie cycle" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={infographicSrc} alt="Infographie cycle" label="Infographie cycle" tone="chart" aspect={infographicAspect} />
         </Card>
         <Card title="Galerie ateliers">
-          <MediaPlaceholder src={workshopSrc} alt="Photo atelier" label="Photo atelier" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src={workshopSrc} alt="Photo atelier" label="Photo atelier" tone="photo" aspect={workshopAspect} />
         </Card>
       </section>
 
@@ -88,9 +93,20 @@ export default async function RessourcesPage() {
           souhaitant agir sur ces enjeux. Nous pouvons intervenir sur site.
         </Text>
         <div className="flex flex-wrap gap-3 pt-3">
-          <Button>Planifier une intervention</Button>
-          <Button variant="secondary">Obtenir les supports</Button>
-          <Button variant="ghost">Voir les programmes</Button>
+          <Button
+            href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Demande%20d%27intervention"
+          >
+            Planifier une intervention
+          </Button>
+          <Button
+            variant="secondary"
+            href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Demande%20de%20supports%20%C3%A9ducatifs"
+          >
+            Obtenir les supports
+          </Button>
+          <Button variant="ghost" href="/programmes">
+            Voir les programmes
+          </Button>
         </div>
       </Card>
     </div>

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
-import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
@@ -20,6 +20,7 @@ export default async function AssociationPage() {
     mediaBySlot["association.president_video"]?.kind === "video"
       ? mediaBySlot["association.president_video"].url
       : undefined;
+  const presidentVideoAspect = mediaBySlot["association.president_video"]?.slotAspect ?? "1/1";
 
   return (
     <div className="flex flex-col gap-10">
@@ -68,14 +69,16 @@ export default async function AssociationPage() {
 
       <Card title="Mot de la Présidente (vidéo)">
         {presidentVideoSrc ? (
-          <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+          <div
+            className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(presidentVideoAspect)}`}
+          >
             <ResettableVideo
               src={presidentVideoSrc}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         ) : (
-          <MediaPlaceholder label="Vidéo à intégrer" tone="video" />
+          <MediaPlaceholder label="Vidéo à intégrer" tone="video" aspect={presidentVideoAspect} />
         )}
       </Card>
     </div>

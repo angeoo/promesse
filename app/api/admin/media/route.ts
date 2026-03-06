@@ -10,6 +10,18 @@ import { getMediaSlotById, listMediaSlots, type MediaAspectRatio } from "@/lib/m
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_TITLE_LENGTH = 120;
+export const MAX_DESCRIPTION_LENGTH = 500;
+export const DISALLOWED_TEXT_PATTERN = /[<>]/;
+export const ALLOWED_CONTENT_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+  "video/webm",
+  "video/quicktime"
+]);
 
 type KillSwitchConfig = {
   enabled: boolean;
@@ -46,10 +58,48 @@ const ADMIN_WRITE_MAX_ATTEMPTS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_MAX
 const ADMIN_WRITE_WINDOW_MS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_WINDOW_MS, 15 * 60 * 1000);
 const ADMIN_WRITE_BLOCK_MS = asPositiveInt(process.env.ADMIN_MEDIA_WRITE_BLOCK_MS, 15 * 60 * 1000);
 
-function inferKind(contentType: string): MediaKind | null {
+export function inferKind(contentType: string): MediaKind | null {
   if (contentType.startsWith("image/")) return "image";
   if (contentType.startsWith("video/")) return "video";
   return null;
+}
+
+export function validateTextField(params: {
+  value: FormDataEntryValue | null;
+  fieldName: string;
+  maxLength: number;
+  required?: boolean;
+}): { ok: true; value: string | undefined } | { ok: false; error: string } {
+  if (typeof params.value !== "string") {
+    if (params.required) {
+      return { ok: false, error: `Le champ ${params.fieldName} est invalide.` };
+    }
+    return { ok: true, value: undefined };
+  }
+
+  const trimmed = params.value.trim();
+  if (!trimmed) {
+    if (params.required) {
+      return { ok: false, error: `Le champ ${params.fieldName} est requis.` };
+    }
+    return { ok: true, value: undefined };
+  }
+
+  if (trimmed.length > params.maxLength) {
+    return {
+      ok: false,
+      error: `Le champ ${params.fieldName} dépasse ${params.maxLength} caractères.`
+    };
+  }
+
+  if (DISALLOWED_TEXT_PATTERN.test(trimmed)) {
+    return {
+      ok: false,
+      error: `Le champ ${params.fieldName} contient des caractères non autorisés.`
+    };
+  }
+
+  return { ok: true, value: trimmed };
 }
 
 export async function GET(request: NextRequest) {
@@ -150,6 +200,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Emplacement média invalide." }, { status: 400 });
     }
 
+    const titleValidation = validateTextField({
+      value: rawTitle,
+      fieldName: "titre",
+      maxLength: MAX_TITLE_LENGTH
+    });
+    if (!titleValidation.ok) {
+      return NextResponse.json({ error: titleValidation.error }, { status: 400 });
+    }
+
+    const descriptionValidation = validateTextField({
+      value: rawDescription,
+      fieldName: "description",
+      maxLength: MAX_DESCRIPTION_LENGTH
+    });
+    if (!descriptionValidation.ok) {
+      return NextResponse.json({ error: descriptionValidation.error }, { status: 400 });
+    }
+
+    const contentType = file.type || "application/octet-stream";
+    if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
+      return NextResponse.json(
+        {
+          error:
+            "Type de fichier non supporté. Formats autorisés: JPG, PNG, WEBP, GIF, MP4, WEBM, MOV."
+        },
+        { status: 400 }
+      );
+    }
+
+    const kind = inferKind(contentType);
+    if (!kind) {
+      return NextResponse.json(
+        { error: "Type de fichier non supporté. Envoyez une image ou une vidéo." },
+        { status: 400 }
+      );
+    }
+
     const db = await getDb();
     const existingForSlot = await db.collection<MediaAsset>(MEDIA_COLLECTION).findOne({ slotId });
     const killSwitch = getKillSwitchConfig();
@@ -197,15 +284,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const contentType = file.type || "application/octet-stream";
-    const kind = inferKind(contentType);
-
-    if (!kind) {
-      return NextResponse.json(
-        { error: "Type de fichier non supporté. Envoyez une image ou une vidéo." },
-        { status: 400 }
-      );
-    }
     if (!slot.acceptedKinds.includes(kind)) {
       return NextResponse.json(
         {
@@ -215,12 +293,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const title =
-      typeof rawTitle === "string" && rawTitle.trim().length > 0 ? rawTitle.trim() : slot.name;
-    const description =
-      typeof rawDescription === "string" && rawDescription.trim().length > 0
-        ? rawDescription.trim()
-        : undefined;
+    const title = titleValidation.value ?? slot.name;
+    const description = descriptionValidation.value;
     const published = rawPublished === "true";
     const slotAspect: MediaAspectRatio =
       rawSlotAspect === "16/9" || rawSlotAspect === "4/3" || rawSlotAspect === "1/1"

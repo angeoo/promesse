@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Text, Title } from "@/components/ui/typography";
+import { getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
 const contactAlbumSlots = [
@@ -25,7 +26,8 @@ export default async function ContactPage() {
   const terrainPhotos = contactAlbumSlots.map((item, index) => ({
     src:
       mediaBySlot[item.slotId]?.kind === "image" ? mediaBySlot[item.slotId].url : item.fallbackSrc,
-    alt: `Photo terrain ${index + 1}`
+    alt: `Photo terrain ${index + 1}`,
+    aspect: mediaBySlot[item.slotId]?.slotAspect ?? "1/1"
   }));
   const isOddCount = terrainPhotos.length % 2 === 1;
 
@@ -52,7 +54,7 @@ export default async function ContactPage() {
         <Card title="Formulaire rapide">
           <form
             className="flex flex-col gap-3"
-            action="mailto:promesse.association@gmail.com?subject=Contact%20depuis%20le%20site%20Promesse"
+            action="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Prise%20de%20contact"
             method="post"
             encType="text/plain"
           >
@@ -70,8 +72,26 @@ export default async function ContactPage() {
           bénéficiaires. Merci pour votre générosité.
         </Text>
         <div className="flex flex-wrap gap-3 pt-3">
-          <Button>Don en ligne</Button>
-          <Button variant="ghost">Voir l’utilisation des dons</Button>
+          <Button
+            href="https://www.helloasso.com/associations/promesse?fbclid=PARlRTSAQVLtRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadWybV6a4hMQg5wjU9h1t0eY-kEdXb0q2y3inhuCJVMsNzzLwnehcgahRquzA_aem_O8HSHfkS6E4u2f3Jhu0X9Q"
+            newTab
+          >
+            Don en ligne
+          </Button>
+          <Button
+            variant="secondary"
+            href="https://donorbox.org/bourse-solidaire?language=fr"
+            newTab
+          >
+            Don bourse solidaire
+          </Button>
+          <Button
+            variant="ghost"
+            href="https://donorbox.org/soutenir-nos-causes?language=fr"
+            newTab
+          >
+            Don via PayPal
+          </Button>
         </div>
       </Card>
 
@@ -90,7 +110,7 @@ export default async function ContactPage() {
                 index % 3 === 2 ? "-rotate-1" : ""
               ].join(" ")}
             >
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md">
+              <div className={`relative w-full overflow-hidden rounded-md ${getAspectPaddingClass(photo.aspect)}`}>
                 <img
                   src={photo.src}
                   alt={photo.alt}

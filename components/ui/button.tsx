@@ -1,4 +1,5 @@
-import React, { forwardRef } from "react";
+import React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -8,6 +9,8 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
+  href?: string;
+  newTab?: boolean;
 };
 
 const baseStyles =
@@ -28,21 +31,56 @@ const sizeStyles: Record<ButtonSize, string> = {
   lg: "text-lg px-5 py-3"
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading = false, children, ...props }, ref) => {
+export function Button({
+  className,
+  variant = "primary",
+  size = "md",
+  loading = false,
+  children,
+  href,
+  newTab = false,
+  ...props
+}: ButtonProps) {
+  const classes = cn(baseStyles, variantStyles[variant], sizeStyles[size], className);
+  const content = (
+    <>
+      {loading && (
+        <span
+          className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+          aria-hidden
+        />
+      )}
+      <span>{children}</span>
+    </>
+  );
+
+  if (href) {
+    const rel = newTab ? "noreferrer noopener" : undefined;
+    const target = newTab ? "_blank" : undefined;
+
+    if (href.startsWith("/")) {
+      return (
+        <Link href={href} className={classes}>
+          {content}
+        </Link>
+      );
+    }
+
     return (
-      <button
-        ref={ref}
-        className={cn(baseStyles, variantStyles[variant], sizeStyles[size], className)}
-        disabled={props.disabled || loading}
-        aria-busy={loading}
-        {...props}
-      >
-        {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden />}
-        <span>{children}</span>
-      </button>
+      <a href={href} className={classes} target={target} rel={rel}>
+        {content}
+      </a>
     );
   }
-);
 
-Button.displayName = "Button";
+  return (
+    <button
+      className={classes}
+      disabled={props.disabled || loading}
+      aria-busy={loading}
+      {...props}
+    >
+      {content}
+    </button>
+  );
+}

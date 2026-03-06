@@ -1,10 +1,12 @@
 type MediaPlaceholderProps = {
   label?: string;
-  aspect?: "16/9" | "4/3" | "1/1";
+  aspect?: MediaAspect;
   tone?: "photo" | "video" | "chart";
   src?: string;
+  fallbackSrc?: string;
   alt?: string;
 };
+export type MediaAspect = "16/9" | "4/3" | "1/1";
 
 const toneMap: Record<NonNullable<MediaPlaceholderProps["tone"]>, string> = {
   photo: "from-primary/10 via-secondary/10 to-accent/20",
@@ -14,17 +16,19 @@ const toneMap: Record<NonNullable<MediaPlaceholderProps["tone"]>, string> = {
 
 export function MediaPlaceholder({
   label = "Média à venir",
-  aspect = "16/9",
+  aspect = "1/1",
   tone = "photo",
   src,
+  fallbackSrc,
   alt = "Media"
 }: MediaPlaceholderProps) {
-  const padding = aspect === "4/3" ? "pt-[75%]" : aspect === "1/1" ? "pt-[100%]" : "pt-[56.25%]";
+  const padding = getAspectPaddingClass(aspect);
+  const resolvedSrc = src ?? fallbackSrc;
 
   return (
     <div className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${padding}`}>
-      {src ? (
-        <img src={src} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+      {resolvedSrc ? (
+        <img src={resolvedSrc} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
       ) : (
         <div
           className={`absolute inset-0 bg-gradient-to-br ${toneMap[tone]} flex items-center justify-center`}
@@ -36,4 +40,8 @@ export function MediaPlaceholder({
       )}
     </div>
   );
+}
+
+export function getAspectPaddingClass(aspect: MediaAspect = "1/1") {
+  return aspect === "4/3" ? "pt-[75%]" : aspect === "1/1" ? "pt-[100%]" : "pt-[56.25%]";
 }

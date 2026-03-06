@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
-import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
@@ -33,14 +33,17 @@ export default async function ProgrammesPage() {
   );
 
   const capsuleMedia = mediaBySlot["programmes.capsule"];
+  const capsuleAspect = "1/1";
   const trainingPhotoSrc =
     mediaBySlot["programmes.training_photo"]?.kind === "image"
       ? mediaBySlot["programmes.training_photo"].url
       : "/formations/image00002.jpeg";
+  const trainingPhotoAspect = "1/1";
   const impactChartSrc =
     mediaBySlot["programmes.impact_chart"]?.kind === "image"
       ? mediaBySlot["programmes.impact_chart"].url
       : undefined;
+  const impactChartAspect = "1/1";
 
   return (
     <div className="flex flex-col gap-10">
@@ -83,7 +86,9 @@ export default async function ProgrammesPage() {
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Capsule programmes">
           {capsuleMedia?.kind === "video" ? (
-            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+            <div
+              className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(capsuleAspect)}`}
+            >
               <ResettableVideo
                 src={capsuleMedia.url}
                 className="absolute inset-0 h-full w-full object-cover"
@@ -92,24 +97,47 @@ export default async function ProgrammesPage() {
           ) : (
             <MediaPlaceholder
               src={capsuleMedia?.kind === "image" ? capsuleMedia.url : "/formations/image00001.jpeg"}
+              fallbackSrc="/formations/image00001.jpeg"
               label="Formatrice promesse"
               tone="video"
+              aspect={capsuleAspect}
             />
           )}
         </Card>
         <Card title="Formation terrain">
-          <MediaPlaceholder src={trainingPhotoSrc} label="Photo atelier" tone="photo" aspect="4/3" />
+          <MediaPlaceholder
+            src={trainingPhotoSrc}
+            fallbackSrc="/formations/image00002.jpeg"
+            label="Photo atelier"
+            tone="photo"
+            aspect={trainingPhotoAspect}
+          />
         </Card>
         <Card title="Suivi impact">
-          <MediaPlaceholder src={impactChartSrc} label="Graphique bénéficiaires" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={impactChartSrc} label="Graphique bénéficiaires" tone="chart" aspect={impactChartAspect} />
         </Card>
       </section>
 
       <Card title="Rejoindre un programme" actions={<Badge tone="secondary">Prioritaire</Badge>}>
         <div className="flex flex-wrap items-center gap-3">
-          <Button>Devenir ambassadeur</Button>
-          <Button variant="secondary">Proposer un partenariat</Button>
-          <Button variant="ghost">Demander une formation</Button>
+          <Button
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfpV11Zy7iAWm4YgJvodHRykNP06vq2MlHToMOi7jet8x2NHw/viewform?fbclid=PARlRTSAQVLvpleHRuA2FlbQIxMABzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAaeSJQ6Y6AYi2mr6vjOrUNqZV8IpjdOVWGC4HqvuCE_fi2sdaT2IBfieBk4IhA_aem_-1sTrhv0DRkcL3nmRuWyag"
+            newTab
+          >
+            Devenir ambassadeur
+          </Button>
+          <Button
+            variant="secondary"
+            href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Proposition%20de%20partenariat"
+          >
+            Proposer un partenariat
+          </Button>
+          <Button
+            variant="ghost"
+            href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Demande%20de%20formation"
+          >
+            Demander une formation
+          </Button>
         </div>
       </Card>
     </div>

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
-import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
@@ -26,18 +26,22 @@ export default async function HomePage() {
     mediaBySlot["home.hero_visual"]?.kind === "image"
       ? mediaBySlot["home.hero_visual"].url
       : "/accueil/image-1.png";
+  const heroAspect = "1/1";
   const mainVideoSrc =
     mediaBySlot["home.gallery_video_main"]?.kind === "video"
       ? mediaBySlot["home.gallery_video_main"].url
       : "/accueil/f30c6134-8c9c-4403-af3b-8aa67e61c357.mp4";
+  const mainVideoAspect = "1/1";
   const workshopPhotoSrc =
     mediaBySlot["home.gallery_photo_workshop"]?.kind === "image"
       ? mediaBySlot["home.gallery_photo_workshop"].url
       : "/accueil/image-2.jpeg";
+  const workshopPhotoAspect = "1/1";
   const infographicSrc =
     mediaBySlot["home.gallery_infographic"]?.kind === "image"
       ? mediaBySlot["home.gallery_infographic"].url
       : undefined;
+  const infographicAspect = "1/1";
 
   return (
     <div className="flex flex-col gap-14">
@@ -52,10 +56,20 @@ l’information sur le cycle menstruel, la lutte contre la précarité menstruel
 dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           </Text>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button size="lg" className="w-full sm:w-auto">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Candidature%20b%C3%A9n%C3%A9vole"
+            >
               Devenir bénévole
             </Button>
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full sm:w-auto"
+              href="https://www.helloasso.com/associations/promesse?fbclid=PARlRTSAQVLtRleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAadWybV6a4hMQg5wjU9h1t0eY-kEdXb0q2y3inhuCJVMsNzzLwnehcgahRquzA_aem_O8HSHfkS6E4u2f3Jhu0X9Q"
+              newTab
+            >
               Faire un don
             </Button>
           </div>
@@ -78,8 +92,9 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           <Card className="relative overflow-hidden p-0 h-full">
             <MediaPlaceholder
               src={heroSrc}
+              fallbackSrc="/accueil/image-1.png"
               alt="L'equipe de l'association Promesse"
-              aspect="16/9"
+              aspect={heroAspect}
             />
           </Card>
         </div>
@@ -114,7 +129,9 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           <Badge tone="secondary">Photos & vidéos à venir</Badge>
         </div>
         <div className="card-grid">
-          <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+          <div
+            className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(mainVideoAspect)}`}
+          >
             <ResettableVideo
               src={mainVideoSrc}
               className="absolute inset-0 h-full w-full object-cover"
@@ -122,8 +139,9 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           </div>
           <MediaPlaceholder
             src={workshopPhotoSrc}
-            label="Atelier santé menstruelle" tone="photo" aspect="4/3" />
-          <MediaPlaceholder src={infographicSrc} label="Infographie impact" tone="chart" aspect="1/1" />
+            fallbackSrc="/accueil/image-2.jpeg"
+            label="Atelier santé menstruelle" tone="photo" aspect={workshopPhotoAspect} />
+          <MediaPlaceholder src={infographicSrc} label="Infographie impact" tone="chart" aspect={infographicAspect} />
         </div>
       </section>
 
@@ -136,7 +154,7 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           </div>
           <form
             className="mx-auto mt-2 flex w-full max-w-md flex-col items-center gap-4"
-            action="mailto:promesse.association@gmail.com?subject=Inscription%20newsletter%20Promesse"
+            action="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Inscription%20newsletter"
             method="post"
             encType="text/plain"
           >

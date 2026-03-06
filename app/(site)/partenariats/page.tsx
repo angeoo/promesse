@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Text, Title } from "@/components/ui/typography";
-import { MediaPlaceholder } from "@/components/ui/media-placeholder";
+import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
@@ -29,14 +29,17 @@ export default async function PartenariatsPage() {
     mediaBySlot["partenariats.case_photo"]?.kind === "image"
       ? mediaBySlot["partenariats.case_photo"].url
       : undefined;
+  const casePhotoAspect = mediaBySlot["partenariats.case_photo"]?.slotAspect ?? "1/1";
   const pitchVideoSrc =
     mediaBySlot["partenariats.pitch_video"]?.kind === "video"
       ? mediaBySlot["partenariats.pitch_video"].url
       : undefined;
+  const pitchVideoAspect = mediaBySlot["partenariats.pitch_video"]?.slotAspect ?? "1/1";
   const impactChartSrc =
     mediaBySlot["partenariats.shared_impact_chart"]?.kind === "image"
       ? mediaBySlot["partenariats.shared_impact_chart"].url
       : undefined;
+  const impactChartAspect = mediaBySlot["partenariats.shared_impact_chart"]?.slotAspect ?? "1/1";
 
   return (
     <div className="flex flex-col gap-10">
@@ -58,22 +61,24 @@ export default async function PartenariatsPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <Card title="Cas partenaire">
-          <MediaPlaceholder src={casePhotoSrc} label="Photo projet commun" tone="photo" aspect="4/3" />
+          <MediaPlaceholder src={casePhotoSrc} label="Photo projet commun" tone="photo" aspect={casePhotoAspect} />
         </Card>
         <Card title="Pitch vidéo">
           {pitchVideoSrc ? (
-            <div className="relative w-full overflow-hidden rounded-lg border border-border shadow-soft pt-[56.25%]">
+            <div
+              className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(pitchVideoAspect)}`}
+            >
               <ResettableVideo
                 src={pitchVideoSrc}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>
           ) : (
-            <MediaPlaceholder label="Vidéo partenariat" tone="video" />
+            <MediaPlaceholder label="Vidéo partenariat" tone="video" aspect={pitchVideoAspect} />
           )}
         </Card>
         <Card title="Impact partagé">
-          <MediaPlaceholder src={impactChartSrc} label="Graphique impact" tone="chart" aspect="1/1" />
+          <MediaPlaceholder src={impactChartSrc} label="Graphique impact" tone="chart" aspect={impactChartAspect} />
         </Card>
       </section>
 
@@ -83,9 +88,18 @@ export default async function PartenariatsPage() {
           point d’honneur à la transparence et à la mesure d’impact.
         </Text>
         <div className="flex flex-wrap gap-3 pt-3">
-          <Button>Échanger</Button>
-          <Button variant="secondary">Proposer un projet</Button>
-          <Button variant="ghost">Voir nos programmes</Button>
+          <Button href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Demande%20d%27%C3%A9change">
+            Échanger
+          </Button>
+          <Button
+            variant="secondary"
+            href="mailto:promesse.association@gmail.com?subject=Site%20Promesse%20-%20Proposition%20de%20partenariat"
+          >
+            Proposer un projet
+          </Button>
+          <Button variant="ghost" href="/programmes">
+            Voir nos programmes
+          </Button>
         </div>
       </Card>
     </div>

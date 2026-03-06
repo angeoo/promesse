@@ -1,9 +1,23 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET || process.env.ADMIN_PASSWORD
+  });
+
+  if (pathname === "/admin" && token?.role === "admin") {
+    return NextResponse.redirect(new URL("/admin/media", request.url));
+  }
+
+  if (pathname.startsWith("/admin/media") && token?.role !== "admin") {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  const response = NextResponse.next();
 
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -20,4 +34,3 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };
-

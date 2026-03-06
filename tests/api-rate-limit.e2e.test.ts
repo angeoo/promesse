@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
-import { ADMIN_SESSION_COOKIE, getSessionValue } from "@/lib/admin-auth";
 import { clearRateLimitStore } from "@/lib/rate-limit";
 import { getMediaAssetById } from "@/lib/media";
 import { getSignedReadUrl } from "@/lib/s3";
+import { isAdminAuthenticatedRequest } from "@/lib/auth";
 
 vi.mock("@/lib/media", async () => {
   const actual = await vi.importActual<typeof import("@/lib/media")>("@/lib/media");
@@ -20,11 +20,21 @@ vi.mock("@/lib/s3", async () => {
   };
 });
 
+vi.mock("@/lib/auth", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/auth")>("@/lib/auth");
+  return {
+    ...actual,
+    isAdminAuthenticatedRequest: vi.fn()
+  };
+});
+
 describe("API rate limit (E2E simulated)", () => {
   beforeEach(() => {
     clearRateLimitStore();
     process.env.ADMIN_PASSWORD = "secret";
-    process.env.ADMIN_AUTH_SECRET = "secret-signature";
+    process.env.ADMIN_EMAIL = "admin@example.com";
+    process.env.NEXTAUTH_SECRET = "secret-signature";
+    vi.mocked(isAdminAuthenticatedRequest).mockResolvedValue(true);
   });
 
   afterEach(() => {
@@ -79,13 +89,11 @@ describe("API rate limit (E2E simulated)", () => {
     process.env.ADMIN_MEDIA_WRITE_BLOCK_MS = "60000";
 
     const route = await import("@/app/api/admin/media/route");
-    const cookie = `${ADMIN_SESSION_COOKIE}=${getSessionValue()}`;
 
     const first = await route.DELETE(
       new NextRequest("http://localhost/api/admin/media", {
         method: "DELETE",
         headers: {
-          cookie,
           "x-forwarded-for": "10.0.0.2"
         }
       })
@@ -96,7 +104,6 @@ describe("API rate limit (E2E simulated)", () => {
       new NextRequest("http://localhost/api/admin/media", {
         method: "DELETE",
         headers: {
-          cookie,
           "x-forwarded-for": "10.0.0.2"
         }
       })
@@ -110,13 +117,11 @@ describe("API rate limit (E2E simulated)", () => {
     process.env.ADMIN_MEDIA_WRITE_BLOCK_MS = "60000";
 
     const route = await import("@/app/api/admin/media/route");
-    const cookie = `${ADMIN_SESSION_COOKIE}=${getSessionValue()}`;
     const first = await route.POST(
       new NextRequest("http://localhost/api/admin/media", {
         method: "POST",
         body: new FormData(),
         headers: {
-          cookie,
           "x-forwarded-for": "10.0.0.3"
         }
       })
@@ -128,7 +133,6 @@ describe("API rate limit (E2E simulated)", () => {
         method: "POST",
         body: new FormData(),
         headers: {
-          cookie,
           "x-forwarded-for": "10.0.0.3"
         }
       })

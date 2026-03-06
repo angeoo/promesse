@@ -14,6 +14,8 @@
   --color-success: #16a34a;
   --color-danger: #dc2626;
   --color-info: #2563eb;
+  --font-heading: "Libre Baskerville", Georgia, serif;
+  --font-body: "Questrial", "Helvetica Neue", Arial, sans-serif;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -45,7 +47,7 @@ body {
   background: transparent;
   backdrop-filter: none;
   color: var(--color-foreground);
-  font-family: var(--font-body), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
 }
 

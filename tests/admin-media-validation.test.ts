@@ -4,7 +4,7 @@ import {
   MAX_TITLE_LENGTH,
   inferKind,
   validateTextField
-} from "@/app/api/admin/media/route";
+} from "@/lib/admin-media-validation";
 
 describe("Admin media validation", () => {
   it("rejects titles containing angle brackets", () => {

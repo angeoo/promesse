@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import type { Route } from "next";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -60,7 +61,7 @@ export function Button({
 
     if (href.startsWith("/")) {
       return (
-        <Link href={href} className={classes}>
+        <Link href={href as Route} className={classes}>
           {content}
         </Link>
       );

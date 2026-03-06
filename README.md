@@ -27,11 +27,11 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
    - `S3_ACCESS_KEY_ID`
    - `S3_SECRET_ACCESS_KEY`
    - `S3_ENDPOINT` (optionnel, pour providers S3-compatibles)
-   - `ADMIN_PASSWORD` (mot de passe du formulaire admin)
-   - `ADMIN_AUTH_SECRET` (optionnel, secret de signature de session)
-   - `ADMIN_LOGIN_MAX_ATTEMPTS` (optionnel, défaut 5)
-   - `ADMIN_LOGIN_WINDOW_MS` (optionnel, défaut 900000)
-   - `ADMIN_LOGIN_BLOCK_MS` (optionnel, défaut 900000)
+   - `ADMIN_EMAIL` (email autorisé pour l’espace admin)
+   - `ADMIN_PASSWORD` (mot de passe de l’espace admin)
+   - `NEXTAUTH_SECRET` (secret de session Auth.js)
+   - `RESEND_API_KEY` (optionnel, requis pour le mot de passe oublié par email)
+   - `ADMIN_FROM_EMAIL` (optionnel, expéditeur du lien de réinitialisation)
    - `ADMIN_MEDIA_WRITE_MAX_ATTEMPTS` (optionnel, défaut 30)
    - `ADMIN_MEDIA_WRITE_WINDOW_MS` (optionnel, défaut 900000)
    - `ADMIN_MEDIA_WRITE_BLOCK_MS` (optionnel, défaut 900000)
@@ -53,10 +53,8 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 
 - `app/admin/media/page.tsx` : interface admin pour uploader et supprimer des médias.
   - sélection d’un slot front (emplacement exact), ratio recommandé et visualisation des places disponibles
-- `app/api/admin/auth/login/route.ts` : connexion admin (mot de passe simple).
-  - inclut une protection anti brute-force (rate limit + blocage temporaire)
-- `app/api/admin/auth/logout/route.ts` : déconnexion admin.
-- `app/api/admin/auth/session/route.ts` : vérification de session admin.
+- `app/admin/page.tsx` : page de connexion admin.
+- `app/api/auth/[...nextauth]/route.ts` : Auth.js (credentials) pour la session admin.
 - `app/api/admin/media/route.ts` : API admin (`GET`, `POST`, `DELETE`).
   - inclut un kill switch paramétrable par quotas (`MEDIA_*`)
   - inclut un rate limit écriture (`ADMIN_MEDIA_WRITE_*`)
@@ -66,7 +64,7 @@ Le projet inclut un backend pour gérer des médias (images/vidéos) avec:
 - `app/(site)/ressources/page.tsx` : affiche automatiquement les médias publiés.
 - `lib/media-slots.ts` : mapping centralisé de tous les `MediaPlaceholder` et `ResettableVideo`.
 - `app/robots.ts` + `app/sitemap.ts` : SEO technique de base.
-- `middleware.ts` : headers HTTP de sécurité + noindex sur l’espace admin.
+- `middleware.ts` : headers HTTP de sécurité + noindex sur l’espace admin + protection `/admin/media`.
 
 ## Structure
 

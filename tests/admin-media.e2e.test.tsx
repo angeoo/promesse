@@ -1,7 +1,45 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import AdminMediaPage from "@/app/admin/media/page";
+import { AdminMediaManager } from "@/components/admin/admin-media-manager";
+
+const { replaceMock, refreshMock, signOutMock } = vi.hoisted(() => ({
+  replaceMock: vi.fn(),
+  refreshMock: vi.fn(),
+  signOutMock: vi.fn()
+}));
+
+const routerMock = {
+  replace: replaceMock,
+  refresh: refreshMock
+};
+
+const slots = [
+  {
+    id: "actions.gallery_field_photo",
+    name: "Actions - Galerie terrain",
+    page: "Actions",
+    description: "Carte Galerie terrain.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["image"] as const
+  },
+  {
+    id: "actions.gallery_workshop_video",
+    name: "Actions - Atelier éducatif vidéo",
+    page: "Actions",
+    description: "Carte Atelier éducatif.",
+    recommendedAspect: "16/9" as const,
+    acceptedKinds: ["video"] as const
+  }
+];
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => routerMock
+}));
+
+vi.mock("next-auth/react", () => ({
+  signOut: signOutMock
+}));
 
 type MockResponsePayload = {
   status: number;
@@ -20,7 +58,6 @@ function jsonResponse(payload: MockResponsePayload) {
 
 describe("Admin media flow (E2E simulated)", () => {
   beforeEach(() => {
-    let authenticated = false;
     let counter = 2;
     let items: Array<{
       id: string;
@@ -53,6 +90,8 @@ describe("Admin media flow (E2E simulated)", () => {
         url: "https://cdn.example.test/media/seed-1"
       }
     ];
+    signOutMock.mockResolvedValue(undefined);
+    replaceMock.mockReset();
 
     vi.stubGlobal(
       "fetch",
@@ -61,26 +100,7 @@ describe("Admin media flow (E2E simulated)", () => {
         const method = (init?.method ?? "GET").toUpperCase();
         const url = new URL(rawUrl, "http://localhost");
 
-        if (url.pathname === "/api/admin/auth/session" && method === "GET") {
-          return jsonResponse({ status: 200, body: { authenticated } });
-        }
-
-        if (url.pathname === "/api/admin/auth/login" && method === "POST") {
-          const parsed = JSON.parse(String(init?.body ?? "{}")) as { password?: string };
-          if (parsed.password === "secret") {
-            authenticated = true;
-            return jsonResponse({ status: 200, body: { ok: true } });
-          }
-          return jsonResponse({ status: 401, body: { error: "Mot de passe invalide." } });
-        }
-
-        if (url.pathname === "/api/admin/auth/logout" && method === "POST") {
-          authenticated = false;
-          return jsonResponse({ status: 200, body: { ok: true } });
-        }
-
         if (url.pathname === "/api/admin/media" && method === "GET") {
-          if (!authenticated) return jsonResponse({ status: 401, body: { error: "Non autorisé." } });
           return jsonResponse({
             status: 200,
             body: {
@@ -95,7 +115,6 @@ describe("Admin media flow (E2E simulated)", () => {
         }
 
         if (url.pathname === "/api/admin/media" && method === "POST") {
-          if (!authenticated) return jsonResponse({ status: 401, body: { error: "Non autorisé." } });
           const body = (init?.body as FormData | undefined) ?? new FormData();
           const title = String(body.get("title") || "Nouveau media");
           const id = String(counter++);
@@ -119,7 +138,6 @@ describe("Admin media flow (E2E simulated)", () => {
         }
 
         if (url.pathname === "/api/admin/media" && method === "DELETE") {
-          if (!authenticated) return jsonResponse({ status: 401, body: { error: "Non autorisé." } });
           const id = url.searchParams.get("id");
           if (!id) return jsonResponse({ status: 400, body: { error: "ID manquant." } });
           items = items.filter((item) => item.id !== id);
@@ -137,15 +155,11 @@ describe("Admin media flow (E2E simulated)", () => {
 
   it("logs in, uploads and deletes a media", async () => {
     const user = userEvent.setup();
-    render(<AdminMediaPage />);
-
-    expect(await screen.findByText(/connexion admin/i)).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText(/mot de passe/i), "secret");
-    await user.click(screen.getByRole("button", { name: /se connecter/i }));
+    render(<AdminMediaManager adminEmail="admin@example.com" />);
 
     expect(await screen.findByText(/upload d’un média/i)).toBeInTheDocument();
     expect(await screen.findByText("Media existant")).toBeInTheDocument();
+    expect(screen.getByText("admin@example.com")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/titre/i), "Upload test");
     const uploadButton = screen.getByRole("button", { name: /uploader/i });
@@ -165,21 +179,3 @@ describe("Admin media flow (E2E simulated)", () => {
     });
   });
 });
-    const slots = [
-      {
-        id: "actions.gallery_field_photo",
-        name: "Actions - Galerie terrain",
-        page: "Actions",
-        description: "Carte Galerie terrain.",
-        recommendedAspect: "4/3" as const,
-        acceptedKinds: ["image"] as const
-      },
-      {
-        id: "actions.gallery_workshop_video",
-        name: "Actions - Atelier éducatif vidéo",
-        page: "Actions",
-        description: "Carte Atelier éducatif.",
-        recommendedAspect: "16/9" as const,
-        acceptedKinds: ["video"] as const
-      }
-    ];

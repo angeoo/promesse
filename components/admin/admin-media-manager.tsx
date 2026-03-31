@@ -17,10 +17,11 @@ type UploadState = {
 };
 
 const ADMIN_FETCH_TIMEOUT_MS = 5000;
+const ADMIN_MEDIA_UPLOAD_TIMEOUT_MS = 60000;
 
-async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit, timeoutMs = ADMIN_FETCH_TIMEOUT_MS) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), ADMIN_FETCH_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     return await fetch(input, {
@@ -35,6 +36,35 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   } finally {
     clearTimeout(timeoutId);
   }
+}
+
+async function readResponsePayload(response: Response): Promise<{ error?: string; [key: string]: unknown }> {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("application/json")) {
+    return (await response.json()) as { error?: string; [key: string]: unknown };
+  }
+
+  const text = (await response.text()).trim();
+
+  if (response.status === 413) {
+    return { error: "Le fichier est trop volumineux pour le serveur distant." };
+  }
+
+  if (!text) {
+    return { error: `Réponse serveur invalide (HTTP ${response.status}).` };
+  }
+
+  if (text.startsWith("<")) {
+    return {
+      error:
+        response.status >= 500
+          ? "Le serveur distant a renvoyé une erreur pendant l'upload."
+          : `Réponse serveur invalide (HTTP ${response.status}).`
+    };
+  }
+
+  return { error: text };
 }
 
 type SlotStatus = {
@@ -65,7 +95,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
     setLoadingList(true);
     try {
       const response = await fetchWithTimeout("/api/admin/media", { cache: "no-store" });
-      const data = (await response.json()) as {
+      const data = (await readResponsePayload(response)) as {
         media?: MediaAssetDTO[];
         slots?: SlotStatus[];
         warning?: string;
@@ -144,8 +174,8 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
       const response = await fetchWithTimeout("/api/admin/media", {
         method: "POST",
         body: formData
-      });
-      const data = (await response.json()) as { error?: string };
+      }, ADMIN_MEDIA_UPLOAD_TIMEOUT_MS);
+      const data = (await readResponsePayload(response)) as { error?: string };
 
       if (response.status === 401) {
         router.replace("/admin");
@@ -179,7 +209,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
       const response = await fetchWithTimeout(`/api/admin/media?id=${id}`, {
         method: "DELETE"
       });
-      const data = (await response.json()) as { error?: string };
+      const data = (await readResponsePayload(response)) as { error?: string };
 
       if (response.status === 401) {
         router.replace("/admin");

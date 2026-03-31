@@ -18,7 +18,8 @@ export default async function ActualitesPage() {
     mediaBySlot["actualites.replay_video"]?.kind === "video"
       ? mediaBySlot["actualites.replay_video"].url
       : undefined;
-  const replayVideoAspect = mediaBySlot["actualites.replay_video"]?.slotAspect ?? "1/1";
+  const replayVideoAspect = mediaBySlot["actualites.replay_video"]?.slotAspect ?? "16/9";
+  const replayVideoContentType = mediaBySlot["actualites.replay_video"]?.contentType;
   const recentDataChartSrc =
     mediaBySlot["actualites.recent_data_chart"]?.kind === "image"
       ? mediaBySlot["actualites.recent_data_chart"].url
@@ -57,6 +58,7 @@ export default async function ActualitesPage() {
             >
               <ResettableVideo
                 src={replayVideoSrc}
+                contentType={replayVideoContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

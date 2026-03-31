@@ -33,7 +33,8 @@ export default async function ProgrammesPage() {
   );
 
   const capsuleMedia = mediaBySlot["programmes.capsule"];
-  const capsuleAspect = "1/1";
+  const capsuleAspect = capsuleMedia?.slotAspect ?? "16/9";
+  const capsuleContentType = capsuleMedia?.contentType;
   const trainingPhotoSrc =
     mediaBySlot["programmes.training_photo"]?.kind === "image"
       ? mediaBySlot["programmes.training_photo"].url
@@ -91,6 +92,7 @@ export default async function ProgrammesPage() {
             >
               <ResettableVideo
                 src={capsuleMedia.url}
+                contentType={capsuleContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

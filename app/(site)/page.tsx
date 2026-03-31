@@ -26,22 +26,23 @@ export default async function HomePage() {
     mediaBySlot["home.hero_visual"]?.kind === "image"
       ? mediaBySlot["home.hero_visual"].url
       : "/accueil/image-1.png";
-  const heroAspect = "1/1";
+  const heroAspect = mediaBySlot["home.hero_visual"]?.slotAspect ?? "1/1";
   const mainVideoSrc =
     mediaBySlot["home.gallery_video_main"]?.kind === "video"
       ? mediaBySlot["home.gallery_video_main"].url
       : "/accueil/f30c6134-8c9c-4403-af3b-8aa67e61c357.mp4";
-  const mainVideoAspect = "1/1";
+  const mainVideoAspect = mediaBySlot["home.gallery_video_main"]?.slotAspect ?? "16/9";
+  const mainVideoContentType = mediaBySlot["home.gallery_video_main"]?.contentType;
   const workshopPhotoSrc =
     mediaBySlot["home.gallery_photo_workshop"]?.kind === "image"
       ? mediaBySlot["home.gallery_photo_workshop"].url
       : "/accueil/image-2.jpeg";
-  const workshopPhotoAspect = "1/1";
+  const workshopPhotoAspect = mediaBySlot["home.gallery_photo_workshop"]?.slotAspect ?? "4/3";
   const infographicSrc =
     mediaBySlot["home.gallery_infographic"]?.kind === "image"
       ? mediaBySlot["home.gallery_infographic"].url
       : undefined;
-  const infographicAspect = "1/1";
+  const infographicAspect = mediaBySlot["home.gallery_infographic"]?.slotAspect ?? "1/1";
 
   return (
     <div className="flex flex-col gap-14">
@@ -134,6 +135,7 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
           >
             <ResettableVideo
               src={mainVideoSrc}
+              contentType={mainVideoContentType}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>

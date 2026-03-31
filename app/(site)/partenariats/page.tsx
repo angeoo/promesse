@@ -34,7 +34,8 @@ export default async function PartenariatsPage() {
     mediaBySlot["partenariats.pitch_video"]?.kind === "video"
       ? mediaBySlot["partenariats.pitch_video"].url
       : undefined;
-  const pitchVideoAspect = mediaBySlot["partenariats.pitch_video"]?.slotAspect ?? "1/1";
+  const pitchVideoAspect = mediaBySlot["partenariats.pitch_video"]?.slotAspect ?? "16/9";
+  const pitchVideoContentType = mediaBySlot["partenariats.pitch_video"]?.contentType;
   const impactChartSrc =
     mediaBySlot["partenariats.shared_impact_chart"]?.kind === "image"
       ? mediaBySlot["partenariats.shared_impact_chart"].url
@@ -70,6 +71,7 @@ export default async function PartenariatsPage() {
             >
               <ResettableVideo
                 src={pitchVideoSrc}
+                contentType={pitchVideoContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

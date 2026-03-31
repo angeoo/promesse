@@ -20,7 +20,8 @@ export default async function AssociationPage() {
     mediaBySlot["association.president_video"]?.kind === "video"
       ? mediaBySlot["association.president_video"].url
       : undefined;
-  const presidentVideoAspect = mediaBySlot["association.president_video"]?.slotAspect ?? "1/1";
+  const presidentVideoAspect = mediaBySlot["association.president_video"]?.slotAspect ?? "16/9";
+  const presidentVideoContentType = mediaBySlot["association.president_video"]?.contentType;
 
   return (
     <div className="flex flex-col gap-10">
@@ -74,6 +75,7 @@ export default async function AssociationPage() {
           >
             <ResettableVideo
               src={presidentVideoSrc}
+              contentType={presidentVideoContentType}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>

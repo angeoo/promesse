@@ -35,7 +35,8 @@ export default async function SEngagerPage() {
     mediaBySlot["s-engager.call_video"]?.kind === "video"
       ? mediaBySlot["s-engager.call_video"].url
       : undefined;
-  const callVideoAspect = mediaBySlot["s-engager.call_video"]?.slotAspect ?? "1/1";
+  const callVideoAspect = mediaBySlot["s-engager.call_video"]?.slotAspect ?? "16/9";
+  const callVideoContentType = mediaBySlot["s-engager.call_video"]?.contentType;
 
   return (
     <div className="flex flex-col gap-10">
@@ -72,6 +73,7 @@ export default async function SEngagerPage() {
             >
               <ResettableVideo
                 src={callVideoSrc}
+                contentType={callVideoContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

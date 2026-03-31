@@ -6,9 +6,10 @@ type ResettableVideoProps = {
   src: string;
   className?: string;
   poster?: string;
+  contentType?: string;
 };
 
-export function ResettableVideo({ src, className, poster }: ResettableVideoProps) {
+export function ResettableVideo({ src, className, poster, contentType }: ResettableVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleLoadedMetadata = () => {
@@ -37,7 +38,7 @@ export function ResettableVideo({ src, className, poster }: ResettableVideoProps
       onEnded={handleEnded}
       className={className}
     >
-      <source src={src} type="video/mp4" />
+      <source src={src} type={contentType || "video/mp4"} />
       Votre navigateur ne supporte pas la lecture vidéo.
     </video>
   );

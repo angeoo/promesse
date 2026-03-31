@@ -57,7 +57,8 @@ export default async function ActionsPage() {
     mediaBySlot["actions.gallery_workshop_video"]?.kind === "video"
       ? mediaBySlot["actions.gallery_workshop_video"].url
       : undefined;
-  const workshopVideoAspect = mediaBySlot["actions.gallery_workshop_video"]?.slotAspect ?? "1/1";
+  const workshopVideoAspect = mediaBySlot["actions.gallery_workshop_video"]?.slotAspect ?? "16/9";
+  const workshopVideoContentType = mediaBySlot["actions.gallery_workshop_video"]?.contentType;
   const impactChartSrc =
     mediaBySlot["actions.gallery_impact_chart"]?.kind === "image"
       ? mediaBySlot["actions.gallery_impact_chart"].url
@@ -127,6 +128,7 @@ export default async function ActionsPage() {
             >
               <ResettableVideo
                 src={workshopVideoSrc}
+                contentType={workshopVideoContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

@@ -28,7 +28,8 @@ export default async function RessourcesPage() {
     mediaBySlot["ressources.capsule_video"]?.kind === "video"
       ? mediaBySlot["ressources.capsule_video"].url
       : undefined;
-  const capsuleVideoAspect = mediaBySlot["ressources.capsule_video"]?.slotAspect ?? "1/1";
+  const capsuleVideoAspect = mediaBySlot["ressources.capsule_video"]?.slotAspect ?? "16/9";
+  const capsuleVideoContentType = mediaBySlot["ressources.capsule_video"]?.contentType;
   const infographicSrc =
     mediaBySlot["ressources.health_infographic"]?.kind === "image"
       ? mediaBySlot["ressources.health_infographic"].url
@@ -72,6 +73,7 @@ export default async function RessourcesPage() {
             >
               <ResettableVideo
                 src={capsuleVideoSrc}
+                contentType={capsuleVideoContentType}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             </div>

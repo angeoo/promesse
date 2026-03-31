@@ -68,7 +68,7 @@ export default async function AssociationPage() {
         </Card>
       </section>
 
-      <Card title="Mot de la Présidente (vidéo)">
+      <Card title="Mot de la Présidente">
         {presidentVideoSrc ? (
           <div
             className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${getAspectPaddingClass(presidentVideoAspect)}`}

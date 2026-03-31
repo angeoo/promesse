@@ -127,7 +127,6 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
       <section className="flex flex-col gap-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <Title level={2}>En images</Title>
-          <Badge tone="secondary">Photos & vidéos à venir</Badge>
         </div>
         <div className="card-grid">
           <div
@@ -161,7 +160,6 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
             encType="text/plain"
           >
             <label className="flex w-full flex-col gap-2 text-center text-sm font-medium text-foreground">
-              <span className="font-semibold text-foreground">Email</span>
               <input
                 name="Email"
                 type="email"

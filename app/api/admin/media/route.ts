@@ -62,9 +62,7 @@ export async function GET(request: NextRequest) {
   try {
     const media = await listMediaAssets({
       limit: 100,
-      publishedOnly: false,
-      includeSignedUrl: true,
-      signedUrlExpiresInSeconds: 60 * 60 * 6
+      publishedOnly: false
     });
     const mediaBySlot = new Map(media.map((item) => [item.slotId, item]));
     const slotStatus = slots.map((slot) => ({
@@ -316,7 +314,8 @@ export async function POST(request: NextRequest) {
           size: saved.size,
           published: saved.published,
           createdAt: saved.createdAt.toISOString(),
-          url: `/api/media/${id}`
+          updatedAt: saved.updatedAt.toISOString(),
+          url: `/api/media/${id}?v=${saved.updatedAt.getTime()}`
         }
       },
       { status: 201 }

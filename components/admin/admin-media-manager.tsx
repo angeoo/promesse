@@ -16,6 +16,27 @@ type UploadState = {
   success: string | null;
 };
 
+const ADMIN_FETCH_TIMEOUT_MS = 5000;
+
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), ADMIN_FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Le serveur met trop de temps à répondre.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 type SlotStatus = {
   id: string;
   name: string;
@@ -43,7 +64,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
   const loadMedia = useCallback(async () => {
     setLoadingList(true);
     try {
-      const response = await fetch("/api/admin/media", { cache: "no-store" });
+      const response = await fetchWithTimeout("/api/admin/media", { cache: "no-store" });
       const data = (await response.json()) as {
         media?: MediaAssetDTO[];
         slots?: SlotStatus[];
@@ -120,7 +141,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
       formData.set("slotId", selectedSlotId);
       formData.set("slotAspect", selectedAspect);
 
-      const response = await fetch("/api/admin/media", {
+      const response = await fetchWithTimeout("/api/admin/media", {
         method: "POST",
         body: formData
       });
@@ -155,7 +176,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
     setUploadState({ loading: true, error: null, success: null });
 
     try {
-      const response = await fetch(`/api/admin/media?id=${id}`, {
+      const response = await fetchWithTimeout(`/api/admin/media?id=${id}`, {
         method: "DELETE"
       });
       const data = (await response.json()) as { error?: string };

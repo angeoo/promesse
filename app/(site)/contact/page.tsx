@@ -42,9 +42,32 @@ export default async function ContactPage() {
       </header>
 
       <section className="grid gap-6 md:grid-cols-2">
-        <Card title="Contact direct" actions={<Badge tone="secondary">Email</Badge>}>
-          <Text tone="muted">promesse.association@gmail.com</Text>
-          <Text tone="muted">Linktree : https://linktr.ee/asso.promesse</Text>
+        <Card title="Contact direct">
+          <Text tone="muted">
+            Contacte-nous directement pour une question, un partenariat ou une demande d’information.
+          </Text>
+          <div className="grid gap-3 pt-2">
+            <a
+              href="mailto:promesse.association@gmail.com"
+              className="group rounded-xl border border-border bg-surface/70 px-4 py-3 transition hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Email</p>
+              <p className="mt-1 text-base font-semibold text-foreground transition group-hover:text-primary">
+                promesse.association@gmail.com
+              </p>
+            </a>
+            <a
+              href="https://linktr.ee/asso.promesse"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="group rounded-xl border border-border bg-surface/70 px-4 py-3 transition hover:border-secondary/30 hover:bg-secondary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary">Linktree</p>
+              <p className="mt-1 text-base font-semibold text-foreground transition group-hover:text-secondary">
+                linktr.ee/asso.promesse
+              </p>
+            </a>
+          </div>
           <div className="pt-3 flex flex-wrap gap-2">
             <Badge>Solidarité</Badge>
             <Badge tone="neutral">Parrainage</Badge>
@@ -66,7 +89,7 @@ export default async function ContactPage() {
         </Card>
       </section>
 
-      <Card title="Faire un don" actions={<Badge tone="secondary">Prioritaire</Badge>}>
+      <Card title="Faire un don">
         <Text tone="muted">
           Vos dons financent les actions, soutiennent les programmes et accompagnent durablement les
           bénéficiaires. Merci pour votre générosité.

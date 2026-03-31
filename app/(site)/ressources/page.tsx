@@ -28,7 +28,7 @@ export default async function RessourcesPage() {
     mediaBySlot["ressources.capsule_video"]?.kind === "video"
       ? mediaBySlot["ressources.capsule_video"].url
       : undefined;
-  const capsuleVideoAspect = mediaBySlot["ressources.capsule_video"]?.slotAspect ?? "16/9";
+  const capsuleVideoAspect = mediaBySlot["ressources.capsule_video"]?.slotAspect ?? "1/1";
   const capsuleVideoContentType = mediaBySlot["ressources.capsule_video"]?.contentType;
   const infographicSrc =
     mediaBySlot["ressources.health_infographic"]?.kind === "image"

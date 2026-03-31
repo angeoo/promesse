@@ -33,7 +33,7 @@ export default async function ProgrammesPage() {
   );
 
   const capsuleMedia = mediaBySlot["programmes.capsule"];
-  const capsuleAspect = capsuleMedia?.slotAspect ?? "16/9";
+  const capsuleAspect = capsuleMedia?.slotAspect ?? "1/1";
   const capsuleContentType = capsuleMedia?.contentType;
   const trainingPhotoSrc =
     mediaBySlot["programmes.training_photo"]?.kind === "image"
@@ -120,8 +120,13 @@ export default async function ProgrammesPage() {
         </Card>
       </section>
 
-      <Card title="Rejoindre un programme" actions={<Badge tone="secondary">Prioritaire</Badge>}>
-        <div className="flex flex-wrap items-center gap-3">
+      <Card
+        title="Rejoindre un programme"
+        className="text-center"
+        headerClassName="justify-center"
+        titleClassName="w-full text-center"
+      >
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-3">
           <Button
             href="https://docs.google.com/forms/d/e/1FAIpQLSfpV11Zy7iAWm4YgJvodHRykNP06vq2MlHToMOi7jet8x2NHw/viewform?fbclid=PARlRTSAQVLvpleHRuA2FlbQIxMABzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAaeSJQ6Y6AYi2mr6vjOrUNqZV8IpjdOVWGC4HqvuCE_fi2sdaT2IBfieBk4IhA_aem_-1sTrhv0DRkcL3nmRuWyag"
             newTab

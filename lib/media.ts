@@ -37,10 +37,22 @@ export type MediaAssetDTO = {
   size: number;
   published: boolean;
   createdAt: string;
+  updatedAt: string;
   url: string;
 };
 
 export const MEDIA_COLLECTION = "mediaAssets";
+const PUBLIC_MEDIA_QUERY_TIMEOUT_MS = 2000;
+const ADMIN_MEDIA_QUERY_TIMEOUT_MS = 3000;
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(message)), timeoutMs);
+    })
+  ]);
+}
 
 async function toMediaAssetDTO(
   asset: MediaAsset,
@@ -48,7 +60,7 @@ async function toMediaAssetDTO(
 ): Promise<MediaAssetDTO> {
   const id = asset._id.toHexString();
   const slotId = asset.slotId || `legacy-${id}`;
-  let url = `/api/media/${id}`;
+  let url = `/api/media/${id}?v=${asset.updatedAt.getTime()}`;
 
   if (options?.includeSignedUrl) {
     try {
@@ -71,6 +83,7 @@ async function toMediaAssetDTO(
     size: asset.size,
     published: asset.published,
     createdAt: asset.createdAt.toISOString(),
+    updatedAt: asset.updatedAt.toISOString(),
     url
   };
 }
@@ -81,18 +94,24 @@ export async function listMediaAssets(options?: {
   includeSignedUrl?: boolean;
   signedUrlExpiresInSeconds?: number;
 }): Promise<MediaAssetDTO[]> {
-  const db = await getDb();
   const limit = options?.limit ?? 50;
   const publishedOnly = options?.publishedOnly ?? false;
 
   const filter = publishedOnly ? { published: true } : {};
 
-  const docs = await db
-    .collection<MediaAsset>(MEDIA_COLLECTION)
-    .find(filter)
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .toArray();
+  const docs = await withTimeout(
+    (async () => {
+      const db = await getDb();
+      return db
+        .collection<MediaAsset>(MEDIA_COLLECTION)
+        .find(filter)
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .limit(limit)
+        .toArray();
+    })(),
+    ADMIN_MEDIA_QUERY_TIMEOUT_MS,
+    "Admin media query timed out."
+  );
 
   return Promise.all(
     docs.map((doc) =>
@@ -117,14 +136,20 @@ export async function listPublishedMediaBySlotIds(
   noStore();
   if (slotIds.length === 0) return {};
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<MediaAsset>(MEDIA_COLLECTION)
-      .find({
-        published: true,
-        slotId: { $in: slotIds }
-      })
-      .toArray();
+    const docs = await withTimeout(
+      (async () => {
+        const db = await getDb();
+        return db
+          .collection<MediaAsset>(MEDIA_COLLECTION)
+          .find({
+            published: true,
+            slotId: { $in: slotIds }
+          })
+          .toArray();
+      })(),
+      PUBLIC_MEDIA_QUERY_TIMEOUT_MS,
+      "Media query timed out."
+    );
 
     const dtoList = await Promise.all(
       docs.map((doc) =>

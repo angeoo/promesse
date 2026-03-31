@@ -18,7 +18,24 @@ function getClientPromise() {
     throw new Error("MONGODB_URI is missing. Add it to your environment variables.");
   }
 
-  clientPromise = new MongoClient(uri, { maxPoolSize: 10 }).connect();
+  const nextPromise = new MongoClient(uri, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 2000,
+    connectTimeoutMS: 2000,
+    socketTimeoutMS: 5000
+  })
+    .connect()
+    .catch((error) => {
+      if (clientPromise === nextPromise) {
+        clientPromise = undefined;
+      }
+      if (global.__mongoClientPromise === nextPromise) {
+        global.__mongoClientPromise = undefined;
+      }
+      throw error;
+    });
+
+  clientPromise = nextPromise;
 
   if (process.env.NODE_ENV !== "production") {
     global.__mongoClientPromise = clientPromise;

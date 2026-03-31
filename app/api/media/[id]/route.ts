@@ -45,7 +45,12 @@ export async function GET(
     }
 
     const signedUrl = await getSignedReadUrl(media.storageKey);
-    return NextResponse.redirect(signedUrl, 307);
+    return NextResponse.redirect(signedUrl, {
+      status: 307,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate"
+      }
+    });
   } catch {
     return new NextResponse("Erreur serveur", { status: 500 });
   }

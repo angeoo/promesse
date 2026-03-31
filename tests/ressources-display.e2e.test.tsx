@@ -23,6 +23,7 @@ describe("Ressources page media rendering (E2E simulated)", () => {
         size: 1024,
         published: true,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         url: "https://cdn.example.test/atelier.jpg"
       }
     });

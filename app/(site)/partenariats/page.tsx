@@ -34,7 +34,7 @@ export default async function PartenariatsPage() {
     mediaBySlot["partenariats.pitch_video"]?.kind === "video"
       ? mediaBySlot["partenariats.pitch_video"].url
       : undefined;
-  const pitchVideoAspect = mediaBySlot["partenariats.pitch_video"]?.slotAspect ?? "16/9";
+  const pitchVideoAspect = mediaBySlot["partenariats.pitch_video"]?.slotAspect ?? "1/1";
   const pitchVideoContentType = mediaBySlot["partenariats.pitch_video"]?.contentType;
   const impactChartSrc =
     mediaBySlot["partenariats.shared_impact_chart"]?.kind === "image"

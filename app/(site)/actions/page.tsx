@@ -57,7 +57,7 @@ export default async function ActionsPage() {
     mediaBySlot["actions.gallery_workshop_video"]?.kind === "video"
       ? mediaBySlot["actions.gallery_workshop_video"].url
       : undefined;
-  const workshopVideoAspect = mediaBySlot["actions.gallery_workshop_video"]?.slotAspect ?? "16/9";
+  const workshopVideoAspect = mediaBySlot["actions.gallery_workshop_video"]?.slotAspect ?? "1/1";
   const workshopVideoContentType = mediaBySlot["actions.gallery_workshop_video"]?.contentType;
   const impactChartSrc =
     mediaBySlot["actions.gallery_impact_chart"]?.kind === "image"
@@ -92,8 +92,8 @@ export default async function ActionsPage() {
             <li>• Actions en France et en Afrique</li>
           </ul>
         </Card>
-        <Card title="Appels à l’action" actions={<Badge tone="secondary">On agit</Badge>}>
-          <div className="flex flex-wrap gap-2">
+        <Card title="Faites la différence" actions={<Badge tone="secondary">On agit</Badge>}>
+          <div className="flex flex-wrap justify-center gap-3 pt-3">
             {actionLinks.map((link) => (
               <a
                 key={link.label}

@@ -72,6 +72,7 @@ describe("Admin media flow (E2E simulated)", () => {
       size: number;
       published: boolean;
       createdAt: string;
+      updatedAt: string;
       url: string;
     }> = [
       {
@@ -87,6 +88,7 @@ describe("Admin media flow (E2E simulated)", () => {
         size: 1024,
         published: true,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         url: "https://cdn.example.test/media/seed-1"
       }
     ];
@@ -131,6 +133,7 @@ describe("Admin media flow (E2E simulated)", () => {
             size: 2048,
             published: true,
             createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             url: `https://cdn.example.test/media/${id}`
           };
           items = [media, ...items];

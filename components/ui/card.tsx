@@ -6,9 +6,11 @@ type CardProps = PropsWithChildren<{
   title?: string;
   className?: string;
   actions?: React.ReactNode;
+  headerClassName?: string;
+  titleClassName?: string;
 }>;
 
-export function Card({ title, actions, className, children }: CardProps) {
+export function Card({ title, actions, className, headerClassName, titleClassName, children }: CardProps) {
   return (
     <section
       className={cn(
@@ -17,8 +19,12 @@ export function Card({ title, actions, className, children }: CardProps) {
       )}
     >
       {(title || actions) && (
-        <header className="flex items-start justify-between gap-2">
-          {title && <h3 className="font-heading text-lg font-semibold text-foreground">{title}</h3>}
+        <header className={cn("flex items-start justify-between gap-2", headerClassName)}>
+          {title && (
+            <h3 className={cn("font-heading text-lg font-semibold text-foreground", titleClassName)}>
+              {title}
+            </h3>
+          )}
           {actions}
         </header>
       )}

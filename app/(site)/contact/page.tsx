@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Text, Title } from "@/components/ui/typography";
 import { getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
+import { getSiteUrl } from "@/lib/site-url";
 
 const contactAlbumSlots = [
   { slotId: "contact.album.01", fallbackSrc: "/dons/terrain/image00001.jpeg" },
@@ -19,6 +20,7 @@ const contactAlbumSlots = [
 ] as const;
 
 export default async function ContactPage() {
+  const siteUrl = getSiteUrl();
   const mediaBySlot = await listPublishedMediaBySlotIds(
     contactAlbumSlots.map((item) => item.slotId)
   );
@@ -65,6 +67,17 @@ export default async function ContactPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary">Linktree</p>
               <p className="mt-1 text-base font-semibold text-foreground transition group-hover:text-secondary">
                 linktr.ee/asso.promesse
+              </p>
+            </a>
+            <a
+              href={siteUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="group rounded-xl border border-border bg-surface/70 px-4 py-3 transition hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Site web</p>
+              <p className="mt-1 text-base font-semibold text-foreground transition group-hover:text-primary">
+                {siteUrl.replace(/^https?:\/\//, "")}
               </p>
             </a>
           </div>

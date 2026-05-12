@@ -225,7 +225,7 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
         throw new Error("Sélectionnez un emplacement.");
       }
 
-      const published = formData.get("published") === "true";
+      const published = true;
 
       // Step 1 — ask the server to validate the upload and return a presigned S3 PUT URL.
       const presignResp = await fetchWithTimeout("/api/admin/media/presign", {
@@ -431,11 +431,6 @@ export function AdminMediaManager({ adminEmail }: { adminEmail: string }) {
                 />
                 <p className="text-xs text-foreground/60">Taille max: 50 Mo. Formats: JPG, PNG, WEBP, GIF, MP4, WEBM, MOV, PDF.</p>
               </div>
-
-              <label className="inline-flex items-center gap-2 text-sm text-foreground/80">
-                <input type="checkbox" name="published" value="true" defaultChecked />
-                Publier immédiatement
-              </label>
 
               {uploadState.loading && uploadState.progress > 0 ? (
                 <div className="flex flex-col gap-1">

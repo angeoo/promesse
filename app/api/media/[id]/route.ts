@@ -48,10 +48,10 @@ export async function GET(
     return NextResponse.redirect(signedUrl, {
       status: 307,
       headers: {
-        // Cache the redirect for 5 min. The ?v=updatedAt query param in the calling URL
-        // already invalidates this cache whenever the media changes, so 5 min is safe
-        // (well below the 1-hour presigned URL expiry).
-        "Cache-Control": "public, max-age=300, stale-while-revalidate=60"
+        // Browser-only cache for 5 min (private = CDN must not cache).
+        // The ?v=updatedAt query param invalidates this when the media changes.
+        // 5 min is well below the 1-hour presigned URL expiry.
+        "Cache-Control": "private, max-age=300"
       }
     });
   } catch {

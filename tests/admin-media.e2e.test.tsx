@@ -58,6 +58,20 @@ function jsonResponse(payload: MockResponsePayload) {
 
 describe("Admin media flow (E2E simulated)", () => {
   beforeEach(() => {
+    // JSDOM's FormData constructor doesn't read file inputs from HTMLFormElement.
+    // Subclass it to inject a test file whenever a form is passed.
+    const testFile = new File(["test content"], "test.jpg", { type: "image/jpeg" });
+    const OriginalFormData = globalThis.FormData;
+    class MockFormData extends OriginalFormData {
+      constructor(form?: HTMLFormElement) {
+        super(form ?? undefined);
+        if (form) {
+          this.set("file", testFile);
+        }
+      }
+    }
+    vi.stubGlobal("FormData", MockFormData);
+
     let counter = 2;
     let items: Array<{
       id: string;
@@ -95,10 +109,28 @@ describe("Admin media flow (E2E simulated)", () => {
     signOutMock.mockResolvedValue(undefined);
     replaceMock.mockReset();
 
+    // Mock XMLHttpRequest so the S3 direct upload resolves immediately with 200.
+    const xhrMock = {
+      upload: { onprogress: null as ((e: ProgressEvent) => void) | null },
+      onload: null as (() => void) | null,
+      onerror: null as (() => void) | null,
+      onabort: null as (() => void) | null,
+      status: 200,
+      open: vi.fn(),
+      setRequestHeader: vi.fn(),
+      send: vi.fn().mockImplementation(() => {
+        queueMicrotask(() => {
+          if (xhrMock.onload) xhrMock.onload();
+        });
+      })
+    };
+    vi.stubGlobal("XMLHttpRequest", vi.fn(() => xhrMock));
+
     vi.stubGlobal(
       "fetch",
       vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
-        const rawUrl = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        const rawUrl =
+          typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
         const method = (init?.method ?? "GET").toUpperCase();
         const url = new URL(rawUrl, "http://localhost");
 
@@ -116,17 +148,33 @@ describe("Admin media flow (E2E simulated)", () => {
           });
         }
 
+        if (url.pathname === "/api/admin/media/presign" && method === "POST") {
+          const reqBody = JSON.parse(String(init?.body ?? "{}")) as { slotId?: string };
+          return jsonResponse({
+            status: 200,
+            body: {
+              uploadUrl: "https://s3.example.test/presigned-upload",
+              storageKey: `media/slots/${reqBody.slotId ?? "unknown"}`,
+              resolvedContentType: "image/jpeg"
+            }
+          });
+        }
+
         if (url.pathname === "/api/admin/media" && method === "POST") {
-          const body = (init?.body as FormData | undefined) ?? new FormData();
-          const title = String(body.get("title") || "Nouveau media");
+          const reqBody = JSON.parse(String(init?.body ?? "{}")) as {
+            title?: string;
+            description?: string;
+            slotId?: string;
+          };
+          const title = reqBody.title || "Nouveau media";
           const id = String(counter++);
           const media = {
             id,
-            slotId: "actions.gallery_workshop_video",
-            slotName: "Actions - Atelier éducatif vidéo",
-            slotAspect: "16/9" as const,
+            slotId: reqBody.slotId || "actions.gallery_field_photo",
+            slotName: "Actions - Galerie terrain",
+            slotAspect: "4/3" as const,
             title,
-            description: body.get("description") ? String(body.get("description")) : undefined,
+            description: reqBody.description || undefined,
             kind: "image" as const,
             filename: "created.jpg",
             contentType: "image/jpeg",
@@ -160,7 +208,7 @@ describe("Admin media flow (E2E simulated)", () => {
     const user = userEvent.setup();
     render(<AdminMediaManager adminEmail="admin@example.com" />);
 
-    expect(await screen.findByText(/upload d’un média/i)).toBeInTheDocument();
+    expect(await screen.findByText(/upload d'un média/i)).toBeInTheDocument();
     expect(await screen.findByText("Media existant")).toBeInTheDocument();
     expect(screen.getByText("admin@example.com")).toBeInTheDocument();
 

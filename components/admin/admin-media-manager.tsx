@@ -41,14 +41,23 @@ async function fetchWithTimeout(
 async function readResponsePayload(
   response: Response
 ): Promise<{ error?: string; [key: string]: unknown }> {
-  const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.includes("application/json")) {
-    return (await response.json()) as { error?: string; [key: string]: unknown };
+  // Use optional chaining: test mocks may not include a headers object.
+  const contentType = response.headers?.get("content-type") ?? "";
+
+  // If the server returns JSON (or we have no content-type to go on), try JSON first.
+  if (contentType.includes("application/json") || !contentType) {
+    try {
+      return (await response.json()) as { error?: string; [key: string]: unknown };
+    } catch {
+      // fall through to text handling
+    }
   }
-  const text = (await response.text()).trim();
+
   if (response.status === 413) {
     return { error: "Le fichier est trop volumineux pour le serveur distant." };
   }
+
+  const text = (await response.text?.())?.trim() ?? "";
   if (!text) {
     return { error: `Réponse serveur invalide (HTTP ${response.status}).` };
   }

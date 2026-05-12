@@ -4,7 +4,7 @@ import { getDb } from "@/lib/mongodb";
 import { getSignedReadUrl } from "@/lib/s3";
 import type { MediaAspectRatio } from "@/lib/media-slots";
 
-export type MediaKind = "image" | "video";
+export type MediaKind = "image" | "video" | "document";
 
 export type MediaAsset = {
   _id: ObjectId;

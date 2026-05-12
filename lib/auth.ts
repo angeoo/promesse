@@ -1,28 +1,20 @@
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac } from "crypto";
 import type { NextRequest } from "next/server";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getToken } from "next-auth/jwt";
 import { bootstrapAdminUserIfNeeded, getAdminUserByEmail, verifyPassword } from "@/lib/admin-users";
+import { checkRateLimit, registerFailure, resetRateLimitKey } from "@/lib/rate-limit";
 
 function getAdminEmail() {
   return (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
 }
 
-function getAdminPassword() {
-  return (process.env.ADMIN_PASSWORD || "").trim();
-}
-
+// NEXTAUTH_SECRET is required. Falling back to ADMIN_PASSWORD would mean the
+// JWT signing key equals the admin password — a credential leak exposes tokens.
 function getAuthSecret() {
-  return (process.env.NEXTAUTH_SECRET || process.env.ADMIN_PASSWORD || "").trim();
-}
-
-function safeEqual(a: string, b: string) {
-  const aBuffer = Buffer.from(a);
-  const bBuffer = Buffer.from(b);
-  if (aBuffer.length !== bBuffer.length) return false;
-  return timingSafeEqual(aBuffer, bBuffer);
+  return (process.env.NEXTAUTH_SECRET || "").trim();
 }
 
 export function isAdminAuthConfigured() {
@@ -39,7 +31,7 @@ function buildAdminUser() {
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: getAuthSecret(),
+  secret: getAuthSecret() || undefined,
   session: {
     strategy: "jwt"
   },
@@ -60,13 +52,26 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password?.trim() || "";
         if (!email || !password) return null;
 
+        // Rate-limit by email: 5 failed attempts per 15 min, then block for 15 min.
+        // Only failed attempts count — success resets the counter.
+        const rateLimitKey = `admin-login:${email}`;
+        const check = checkRateLimit({
+          key: rateLimitKey,
+          maxAttempts: 5,
+          windowMs: 15 * 60 * 1000,
+          blockMs: 15 * 60 * 1000
+        });
+        if (!check.allowed) return null;
+
         const bootstrappedUser = await bootstrapAdminUserIfNeeded({ email, password });
         const adminUser = bootstrappedUser ?? (await getAdminUserByEmail(email));
 
         if (!adminUser || !verifyPassword(password, adminUser.passwordHash)) {
+          registerFailure({ key: rateLimitKey, windowMs: 15 * 60 * 1000 });
           return null;
         }
 
+        resetRateLimitKey(rateLimitKey);
         return {
           ...buildAdminUser(),
           email: adminUser.email
@@ -79,6 +84,11 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = "admin";
         token.email = user.email;
+        // Bind the session to the user's current state. If the account is updated
+        // (password or email change), updatedAt advances and the stored value here
+        // becomes stale — isAdminAuthenticatedRequest will reject the token.
+        const adminUser = await getAdminUserByEmail(user.email ?? "");
+        token.sessionBoundAt = adminUser?.updatedAt.getTime() ?? Date.now();
       }
       return token;
     },
@@ -99,5 +109,14 @@ export function getServerAuthSession() {
 
 export async function isAdminAuthenticatedRequest(request: NextRequest) {
   const token = await getToken({ req: request, secret: getAuthSecret() });
-  return token?.role === "admin";
+  if (token?.role !== "admin") return false;
+
+  // Reject tokens issued before the last account update (password/email change).
+  const sessionBoundAt = token.sessionBoundAt as number | undefined;
+  if (sessionBoundAt !== undefined) {
+    const adminUser = await getAdminUserByEmail(token.email as string);
+    if (!adminUser || adminUser.updatedAt.getTime() > sessionBoundAt) return false;
+  }
+
+  return true;
 }

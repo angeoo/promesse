@@ -62,9 +62,11 @@ export function AdminAccountSettings({ currentEmail }: { currentEmail: string })
       setPasswordState({
         loading: false,
         error: null,
-        success: "Mot de passe mis à jour."
+        success: "Mot de passe mis à jour. Déconnexion en cours…"
       });
       setActivePanel(null);
+      // Invalidate the session immediately so the new sessionBoundAt takes effect.
+      setTimeout(() => signOut({ callbackUrl: "/admin" }), 1500);
     } catch (error) {
       setPasswordState({
         loading: false,

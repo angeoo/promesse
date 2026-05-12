@@ -11,12 +11,14 @@ export const ALLOWED_CONTENT_TYPES = new Set([
   "image/gif",
   "video/mp4",
   "video/webm",
-  "video/quicktime"
+  "video/quicktime",
+  "application/pdf"
 ]);
 
 export function inferKind(contentType: string): MediaKind | null {
   if (contentType.startsWith("image/")) return "image";
   if (contentType.startsWith("video/")) return "video";
+  if (contentType === "application/pdf") return "document";
   return null;
 }
 

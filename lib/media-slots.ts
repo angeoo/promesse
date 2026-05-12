@@ -13,7 +13,7 @@ export type MediaSlot = {
     kind: MediaKind;
     src?: string;
     label?: string;
-    tone?: "photo" | "video" | "chart";
+    tone?: "photo" | "video" | "chart" | "document";
   };
 };
 
@@ -206,6 +206,38 @@ export const MEDIA_SLOTS: MediaSlot[] = [
     recommendedAspect: "1/1",
     acceptedKinds: ["image"],
     fallback: { kind: "image", tone: "chart", label: "Graphique actions" }
+  },
+  {
+    id: "ressources.fiche_cycle_menstruel",
+    name: "Ressources - Fiche cycle menstruel",
+    page: "Ressources",
+    description: "Fiche PDF sur le cycle menstruel.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
+    id: "ressources.fiche_hygiene_menstruelle",
+    name: "Ressources - Fiche hygiène menstruelle",
+    page: "Ressources",
+    description: "Fiche PDF sur l'hygiène menstruelle.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
+    id: "ressources.fiche_mythes_realites",
+    name: "Ressources - Fiche mythes et réalités",
+    page: "Ressources",
+    description: "Fiche PDF sur les mythes et réalités.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
+    id: "ressources.fiche_sante_prevention",
+    name: "Ressources - Fiche santé et prévention",
+    page: "Ressources",
+    description: "Fiche PDF sur la santé et prévention.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
   },
   ...Array.from({ length: 9 }, (_, index) => {
     const slotIndex = index + 1;

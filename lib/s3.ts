@@ -1,6 +1,7 @@
 import {
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   PutObjectCommand,
   S3Client
 } from "@aws-sdk/client-s3";
@@ -95,4 +96,40 @@ export async function getSignedReadUrl(key: string, expiresInSeconds = 3600) {
   });
 
   return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+}
+
+// NOTE: Direct browser-to-S3 uploads via this URL require the bucket to have a CORS rule
+// allowing PUT from the site's origin with the Content-Type header allowed.
+export async function getPresignedPutUrl(params: {
+  key: string;
+  contentType: string;
+  contentLength: number;
+  expiresInSeconds?: number;
+}) {
+  const client = getS3Client();
+  const bucketName = getS3BucketName();
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: params.key,
+    ContentType: params.contentType,
+    ContentLength: params.contentLength
+  });
+
+  return getSignedUrl(client, command, { expiresIn: params.expiresInSeconds ?? 900 });
+}
+
+export async function headObject(key: string): Promise<{ size: number; contentType: string } | null> {
+  const client = getS3Client();
+  const bucketName = getS3BucketName();
+
+  try {
+    const result = await client.send(new HeadObjectCommand({ Bucket: bucketName, Key: key }));
+    return {
+      size: result.ContentLength ?? 0,
+      contentType: result.ContentType ?? "application/octet-stream"
+    };
+  } catch {
+    return null;
+  }
 }

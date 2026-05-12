@@ -5,21 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
+import { FichesPdfList } from "@/components/ui/fiches-pdf-list";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
 
-const fiches = [
-  "Cycle menstruel",
-  "Hygiène menstruelle",
-  "Mythes et réalités",
-  "Santé et prévention"
-];
+const FICHE_DEFINITIONS = [
+  { label: "Cycle menstruel", slotId: "ressources.fiche_cycle_menstruel" },
+  { label: "Hygiène menstruelle", slotId: "ressources.fiche_hygiene_menstruelle" },
+  { label: "Mythes et réalités", slotId: "ressources.fiche_mythes_realites" },
+  { label: "Santé et prévention", slotId: "ressources.fiche_sante_prevention" }
+] as const;
 
 export default async function RessourcesPage() {
   let mediaBySlot = {} as Awaited<ReturnType<typeof listPublishedMediaBySlotIds>>;
   try {
-    mediaBySlot = await listPublishedMediaBySlotIds(
-      ["ressources.capsule_video", "ressources.health_infographic", "ressources.workshop_gallery"]
-    );
+    mediaBySlot = await listPublishedMediaBySlotIds([
+      "ressources.capsule_video",
+      "ressources.health_infographic",
+      "ressources.workshop_gallery",
+      ...FICHE_DEFINITIONS.map((f) => f.slotId)
+    ]);
   } catch {
     mediaBySlot = {};
   }
@@ -41,6 +45,14 @@ export default async function RessourcesPage() {
       : undefined;
   const workshopAspect = mediaBySlot["ressources.workshop_gallery"]?.slotAspect ?? "1/1";
 
+  const fichesItems = FICHE_DEFINITIONS.map((f) => {
+    const media = mediaBySlot[f.slotId];
+    return {
+      label: f.label,
+      url: media?.kind === "document" ? media.url : undefined
+    };
+  });
+
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-3">
@@ -53,14 +65,10 @@ export default async function RessourcesPage() {
 
       <section className="grid gap-6 md:grid-cols-2">
         <Card title="Fiches éducatives" actions={<Badge tone="primary">Téléchargeable</Badge>}>
-          <ul className="list-disc pl-4 text-foreground/80">
-            {fiches.map((fiche) => (
-              <li key={fiche}>{fiche}</li>
-            ))}
-          </ul>
+          <FichesPdfList items={fichesItems} />
         </Card>
         <Card title="Vidéos pédagogiques" actions={<Badge tone="secondary">À filmer</Badge>}>
-          Vidéos courtes pour expliquer l’éducation menstruelle et son importance. Formats prêts pour
+          Vidéos courtes pour expliquer l'éducation menstruelle et son importance. Formats prêts pour
           site et réseaux.
         </Card>
       </section>
@@ -91,7 +99,7 @@ export default async function RessourcesPage() {
 
       <Card title="Ressources pour éducateurs" actions={<Badge tone="neutral">Interventions</Badge>}>
         <Text>
-          Outils pédagogiques et programmes d’intervention pour écoles, universités et structures
+          Outils pédagogiques et programmes d'intervention pour écoles, universités et structures
           souhaitant agir sur ces enjeux. Nous pouvons intervenir sur site.
         </Text>
         <div className="flex flex-wrap gap-3 pt-3">

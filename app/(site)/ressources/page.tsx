@@ -68,7 +68,7 @@ export default async function RessourcesPage() {
           <FichesPdfList items={fichesItems} />
         </Card>
         <Card title="Vidéos pédagogiques" actions={<Badge tone="secondary">À filmer</Badge>}>
-          Vidéos courtes pour expliquer l'éducation menstruelle et son importance. Formats prêts pour
+          Vidéos courtes pour expliquer l&apos;éducation menstruelle et son importance. Formats prêts pour
           site et réseaux.
         </Card>
       </section>
@@ -99,7 +99,7 @@ export default async function RessourcesPage() {
 
       <Card title="Ressources pour éducateurs" actions={<Badge tone="neutral">Interventions</Badge>}>
         <Text>
-          Outils pédagogiques et programmes d'intervention pour écoles, universités et structures
+          Outils pédagogiques et programmes d&apos;intervention pour écoles, universités et structures
           souhaitant agir sur ces enjeux. Nous pouvons intervenir sur site.
         </Text>
         <div className="flex flex-wrap gap-3 pt-3">

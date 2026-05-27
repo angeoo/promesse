@@ -154,7 +154,7 @@ export async function listPublishedMediaBySlotIds(
     const dtoList = await Promise.all(
       docs.map((doc) =>
         toMediaAssetDTO(doc, {
-          includeSignedUrl: options?.includeSignedUrl,
+          includeSignedUrl: options?.includeSignedUrl ?? true,
           signedUrlExpiresInSeconds: options?.signedUrlExpiresInSeconds
         })
       )

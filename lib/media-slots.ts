@@ -9,6 +9,7 @@ export type MediaSlot = {
   description: string;
   recommendedAspect: MediaAspectRatio;
   acceptedKinds: MediaKind[];
+  posterSlotId?: string;
   fallback?: {
     kind: MediaKind;
     src?: string;

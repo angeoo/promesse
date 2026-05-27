@@ -108,6 +108,7 @@ function uploadFileToS3(
 
     xhr.open("PUT", uploadUrl);
     xhr.setRequestHeader("Content-Type", contentType);
+    xhr.setRequestHeader("Cache-Control", "public, max-age=3600");
     xhr.send(file);
   });
 }

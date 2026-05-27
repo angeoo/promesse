@@ -1,3 +1,5 @@
+import { RetryableImage } from "@/components/ui/retryable-image";
+
 type MediaPlaceholderProps = {
   label?: string;
   aspect?: MediaAspect;
@@ -28,7 +30,7 @@ export function MediaPlaceholder({
   return (
     <div className={`relative w-full overflow-hidden rounded-lg border border-border shadow-soft ${padding}`}>
       {resolvedSrc ? (
-        <img src={resolvedSrc} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+        <RetryableImage src={resolvedSrc} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
       ) : (
         <div
           className={`absolute inset-0 bg-gradient-to-br ${toneMap[tone]} flex items-center justify-center`}

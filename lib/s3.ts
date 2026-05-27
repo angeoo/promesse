@@ -40,7 +40,11 @@ function getS3Client() {
     credentials: {
       accessKeyId: accessKeyId as string,
       secretAccessKey: secretAccessKey as string
-    }
+    },
+    // Prevent SDK v3 from injecting x-amz-checksum-mode=ENABLED into presigned
+    // URLs — browsers can't satisfy that header and S3 rejects the request.
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED"
   });
 
   return s3Client;
@@ -86,7 +90,17 @@ export async function deleteFromS3(key: string) {
   await client.send(command);
 }
 
+type CachedUrl = { url: string; expiresAt: number };
+const presignedReadUrlCache = new Map<string, CachedUrl>();
+// Cache TTL kept well below the 1-hour presigned URL expiry so we never serve
+// a link that's about to expire.
+const PRESIGNED_CACHE_TTL_MS = 50 * 60 * 1000;
+
 export async function getSignedReadUrl(key: string, expiresInSeconds = 3600) {
+  const now = Date.now();
+  const cached = presignedReadUrlCache.get(key);
+  if (cached && cached.expiresAt > now) return cached.url;
+
   const client = getS3Client();
   const bucketName = getS3BucketName();
 
@@ -95,11 +109,13 @@ export async function getSignedReadUrl(key: string, expiresInSeconds = 3600) {
     Key: key
   });
 
-  return getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+  const url = await getSignedUrl(client, command, { expiresIn: expiresInSeconds });
+  presignedReadUrlCache.set(key, { url, expiresAt: now + PRESIGNED_CACHE_TTL_MS });
+  return url;
 }
 
 // NOTE: Direct browser-to-S3 uploads via this URL require the bucket to have a CORS rule
-// allowing PUT from the site's origin with the Content-Type header allowed.
+// allowing PUT from the site's origin with the Content-Type and Cache-Control headers allowed.
 export async function getPresignedPutUrl(params: {
   key: string;
   contentType: string;
@@ -113,7 +129,9 @@ export async function getPresignedPutUrl(params: {
     Bucket: bucketName,
     Key: params.key,
     ContentType: params.contentType,
-    ContentLength: params.contentLength
+    ContentLength: params.contentLength,
+    // Stored on the S3 object so browsers cache it for the presigned URL lifetime.
+    CacheControl: "public, max-age=3600"
   });
 
   return getSignedUrl(client, command, { expiresIn: params.expiresInSeconds ?? 900 });

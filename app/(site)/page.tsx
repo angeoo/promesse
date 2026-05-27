@@ -117,7 +117,7 @@ dons, ainsi que l’aide aux orphelins et les programmes de parrainage
             Collecte et distribution de protections, accompagnement des publics vulnérables, ateliers
             d’autonomie.
           </Card>
-          <Card title="Soutien aux orphelins">
+          <Card title="Parrainage des orphelins">
             Programmes de parrainage, actions humanitaires sur le terrain, soutien aux structures
             éducatives.
           </Card>

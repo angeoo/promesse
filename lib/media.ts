@@ -42,8 +42,8 @@ export type MediaAssetDTO = {
 };
 
 export const MEDIA_COLLECTION = "mediaAssets";
-const PUBLIC_MEDIA_QUERY_TIMEOUT_MS = 2000;
-const ADMIN_MEDIA_QUERY_TIMEOUT_MS = 3000;
+const PUBLIC_MEDIA_QUERY_TIMEOUT_MS = 3000;
+const ADMIN_MEDIA_QUERY_TIMEOUT_MS = 5000;
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
   return Promise.race<T>([
@@ -74,7 +74,7 @@ async function toMediaAssetDTO(
     id,
     slotId,
     slotName: asset.slotName || slotId,
-    slotAspect: asset.slotAspect || "16/9",
+    slotAspect: asset.slotAspect || "1/1",
     title: asset.title,
     description: asset.description,
     kind: asset.kind,

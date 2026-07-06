@@ -69,17 +69,6 @@ export default async function ContactPage() {
                 linktr.ee/asso.promesse
               </p>
             </a>
-            <a
-              href={siteUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="group rounded-xl border border-border bg-surface/70 px-4 py-3 transition hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:ring-offset-2"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Site web</p>
-              <p className="mt-1 text-base font-semibold text-foreground transition group-hover:text-primary">
-                {siteUrl.replace(/^https?:\/\//, "")}
-              </p>
-            </a>
           </div>
           <div className="pt-3 flex flex-wrap gap-2">
             <Badge>Solidarité</Badge>

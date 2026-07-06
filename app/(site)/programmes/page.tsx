@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Text, Title } from "@/components/ui/typography";
 import { MediaPlaceholder, getAspectPaddingClass } from "@/components/ui/media-placeholder";
 import { ResettableVideo } from "@/components/ui/resettable-video";
+import { FichesPdfList } from "@/components/ui/fiches-pdf-list";
 import { listPublishedMediaBySlotIds } from "@/lib/media";
+
+const CHARTE_DEFINITIONS = [
+  { label: "Charte de programme de formation santé menstruelle", slotId: "programmes.charte_formation_sante_menstruelle" },
+  { label: "Charte de programme ambassadeur Promesse", slotId: "programmes.charte_ambassadeur" },
+  { label: "Charte de programme de parrainage", slotId: "programmes.charte_parrainage" }
+] as const;
 
 const programmes = [
   {
@@ -20,7 +27,7 @@ const programmes = [
     badge: "Ambassadeurs"
   },
   {
-    title: "Soutien aux orphelins",
+    title: "Programme de parrainage des orphelins",
     detail:
       "Partenariats avec des structures locales, accompagnement éducatif et matériel, programmes de parrainage.",
     badge: "Solidarité"
@@ -28,9 +35,12 @@ const programmes = [
 ];
 
 export default async function ProgrammesPage() {
-  const mediaBySlot = await listPublishedMediaBySlotIds(
-    ["programmes.capsule", "programmes.training_photo", "programmes.impact_chart"]
-  );
+  const mediaBySlot = await listPublishedMediaBySlotIds([
+    "programmes.capsule",
+    "programmes.training_photo",
+    "programmes.impact_chart",
+    ...CHARTE_DEFINITIONS.map((c) => c.slotId)
+  ]);
 
   const capsuleMedia = mediaBySlot["programmes.capsule"];
   const capsuleAspect = capsuleMedia?.slotAspect ?? "1/1";
@@ -45,6 +55,14 @@ export default async function ProgrammesPage() {
       ? mediaBySlot["programmes.impact_chart"].url
       : undefined;
   const impactChartAspect = "1/1";
+
+  const charteItems = CHARTE_DEFINITIONS.map((c) => {
+    const media = mediaBySlot[c.slotId];
+    return {
+      label: c.label,
+      url: media?.kind === "document" ? media.url : undefined
+    };
+  });
 
   return (
     <div className="flex flex-col gap-10">
@@ -73,12 +91,9 @@ export default async function ProgrammesPage() {
           Vidéos courtes pour montrer le terrain, les ateliers et les formations. Un format pensé pour
           rassurer partenaires et bénéficiaires.
         </Card>
-        <Card title="Kit Ambassadeur & gouvernance">
-          <div className="flex flex-wrap gap-2">
-            <Badge>Kit ambassadeur</Badge>
-            <Badge tone="secondary">Charte de gouvernance</Badge>
-          </div>
-          <Text className="mt-2" tone="muted">
+        <Card title="Chartes de nos programmes">
+          <FichesPdfList items={charteItems} />
+          <Text className="mt-2 text-sm" tone="muted">
             Documents téléchargeables pour cadrer l’éthique, l’engagement et la transparence.
           </Text>
         </Card>

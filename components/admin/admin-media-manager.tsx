@@ -103,9 +103,8 @@ function uploadFileToS3(
       }
     };
 
-    xhr.onerror = () => reject(new Error("Erreur réseau lors de l'envoi du fichier."));
+    xhr.onerror = (err) => reject(new Error(`Erreur réseau lors de l'envoi vers le stockage: ${err}`));
     xhr.onabort = () => reject(new DOMException("Upload annulé.", "AbortError"));
-
     xhr.open("PUT", uploadUrl);
     xhr.setRequestHeader("Content-Type", contentType);
     xhr.setRequestHeader("Cache-Control", "public, max-age=3600");

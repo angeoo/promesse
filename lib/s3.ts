@@ -134,7 +134,7 @@ export async function getPresignedPutUrl(params: {
     CacheControl: "public, max-age=3600"
   });
 
-  return getSignedUrl(client, command, { expiresIn: params.expiresInSeconds ?? 900 });
+  return getSignedUrl(client, command, { expiresIn: params.expiresInSeconds ?? 1000 });
 }
 
 export async function headObject(key: string): Promise<{ size: number; contentType: string } | null> {

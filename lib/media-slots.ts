@@ -209,6 +209,30 @@ export const MEDIA_SLOTS: MediaSlot[] = [
     fallback: { kind: "image", tone: "chart", label: "Graphique actions" }
   },
   {
+    id: "programmes.charte_formation_sante_menstruelle",
+    name: "Programmes - Charte formation santé menstruelle",
+    page: "Programmes",
+    description: "Charte PDF du programme de formation santé menstruelle.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
+    id: "programmes.charte_ambassadeur",
+    name: "Programmes - Charte programme ambassadeur",
+    page: "Programmes",
+    description: "Charte PDF du programme ambassadeur Promesse.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
+    id: "programmes.charte_parrainage",
+    name: "Programmes - Charte programme de parrainage",
+    page: "Programmes",
+    description: "Charte PDF du programme de parrainage.",
+    recommendedAspect: "4/3" as const,
+    acceptedKinds: ["document"] as MediaKind[]
+  },
+  {
     id: "ressources.fiche_cycle_menstruel",
     name: "Ressources - Fiche cycle menstruel",
     page: "Ressources",
